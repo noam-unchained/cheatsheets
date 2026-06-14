@@ -1,12 +1,12 @@
 ETTERCAP MITM - QUICK REF
 
-1.  sudo nmcli con mod "<connection>" ipv4.method manual ipv4.addresses <kali-ip>/24
-2.  sudo nmcli con up "<connection>"
-3.  sudo ettercap -G
-4.  Hosts → Scan for hosts
-5.  Hosts → Hosts list → set Target 1 + Target 2
-6.  MITM → ARP poisoning → Sniff remote connections → OK
-7.  Verify on victim: arp -a  (should show Kali's MAC)
-8.  [optional] Wireshark filter: ip.addr == <t1> && ip.addr == <t2>
-9.  MITM → Stop MITM attack(s)
-10. sudo nmcli con mod "<connection>" ipv4.method auto && sudo nmcli con up "<connection>"
+1.  sudo ettercap -G
+2.  Hosts → Scan for hosts
+3.  Hosts → Hosts list → set Target 1 + Target 2
+4.  MITM → ARP poisoning → Sniff remote connections → OK
+5.  Verify on victim: arp -a  (should show Kali's MAC)
+6.  [optional] Wireshark filter: ip.addr == <t1> && ip.addr == <t2>
+7.  MITM → Stop MITM attack(s)
+
+[optional] If you set a static IP before the attack, restore with:
+    sudo nmcli con mod "<connection>" ipv4.method auto && sudo nmcli con up "<connection>"

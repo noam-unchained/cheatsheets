@@ -4,17 +4,7 @@ A general LLMNR/NBT-NS poisoning workflow with Responder to capture NTLMv2 hashe
 Replace the placeholders (<...>) with your own values.
 
 
-Step 1 - Prep Kali's network
-
-Make sure Kali is on the same subnet as your targets. Responder listens on a
-specific interface, so confirm you have the right one:
-
-    ip -4 addr show                         # find your lab interface and IP
-    sudo nmcli con mod "<connection name>" ipv4.method manual ipv4.addresses <kali-ip>/24
-    sudo nmcli con up "<connection name>"
-
-
-Step 2 - Launch Responder
+Step 1 - Launch Responder
 
     sudo responder -I <interface>
 
@@ -22,7 +12,7 @@ Step 2 - Launch Responder
       -I   interface to listen on (e.g. eth0)
 
 
-Step 3 - Trigger the poisoning
+Step 2 - Trigger the poisoning
 
 Wait for a victim machine to broadcast an LLMNR or NBT-NS query.
 This happens automatically when a user or process tries to reach a hostname
@@ -31,7 +21,7 @@ Responder intercepts the broadcast and replies with Kali's IP, causing the
 victim to attempt NTLM authentication against Kali.
 
 
-Step 4 - Capture the NTLMv2 hash
+Step 3 - Capture the NTLMv2 hash
 
 Responder prints captured hashes to the terminal and saves them to:
 
@@ -44,7 +34,7 @@ Each captured hash looks like:
     <username>::<domain>:<challenge>:<response>:<NTLMv2 blob>
 
 
-Step 5 - Crack the hash offline
+Step 4 - Crack the hash offline
 
 Use hashcat with mode 5600 (NTLMv2):
 
@@ -55,13 +45,15 @@ Example with rockyou:
             /usr/share/wordlists/rockyou.txt --force
 
 
-Step 6 - Stop Responder
+Step 5 - Stop Responder
 
 Press Ctrl+C in the terminal running Responder.
 Responder does not modify ARP tables, so no cleanup is needed on the network side.
 
 
-Step 7 - Restore Kali's normal networking (if changed in Step 1)
+(optional) Restore Kali's networking
+
+Only needed if you manually set a static IP before the attack:
 
     sudo nmcli con mod "<connection name>" ipv4.method auto
     sudo nmcli con up "<connection name>"

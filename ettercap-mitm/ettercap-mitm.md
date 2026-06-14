@@ -4,23 +4,12 @@ A general ARP-poisoning man-in-the-middle workflow with ettercap (GUI).
 Replace the placeholders (<...>) with your own values.
 
 
-Step 1 - Prep Kali's network
-
-Make sure Kali is on the same subnet as your targets, and ideally only that
-subnet (extra IPs make ettercap scan the wrong network). With NetworkManager,
-pin a single static lab IP:
-
-    sudo nmcli con mod "<connection name>" ipv4.method manual ipv4.addresses <kali-ip>/24
-    sudo nmcli con up "<connection name>"
-    ip -4 addr show <interface>      # confirm only the lab IP is present
-
-
-Step 2 - Launch the GUI
+Step 1 - Launch the GUI
 
     sudo ettercap -G
 
 
-Step 3 - In the GUI
+Step 2 - In the GUI
 
 1. Select your interface (e.g. eth0) and click the checkmark to start unified sniffing.
 2. Menu -> Hosts -> Scan for hosts.
@@ -31,7 +20,7 @@ Step 3 - In the GUI
 7. Bottom log should show "ARP poisoning victims" with Group 1 and Group 2.
 
 
-Step 4 - Verify it worked
+Step 3 - Verify it worked
 
 On the victim machine:
 
@@ -41,21 +30,21 @@ The target's IP should now show Kali's MAC address instead of its real one.
 That means traffic is flowing through Kali.
 
 
-Step 5 - (optional) Capture traffic
+Step 4 - (optional) Capture traffic
 
 Open Wireshark on the same interface and filter on the two target IPs:
 
     ip.addr == <target1> && ip.addr == <target2>
 
 
-Step 6 - Stop cleanly
+Step 5 - Stop cleanly
 
 MITM (globe) icon -> Stop MITM attack(s). This restores the real ARP entries.
 
 
-Step 7 - Restore Kali's normal networking
+(optional) Restore Kali's networking
 
-If you changed it in Step 1, switch back to DHCP:
+Only needed if you manually set a static IP before the attack:
 
     sudo nmcli con mod "<connection name>" ipv4.method auto
     sudo nmcli con up "<connection name>"
