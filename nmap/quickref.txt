@@ -1,0 +1,16 @@
+NMAP - QUICK REF
+
+1.  nmap -sn <target-range>                         host discovery (who's alive)
+2.  nmap -sS -T4 <target>                           stealth SYN scan (requires root)
+3.  nmap -sS -sV -T4 -oN <output.txt> <target>     version detection + save output
+4.  nmap -A -p- -T4 <target>                        aggressive full scan (all ports)
+5.  nmap --script vuln -sV <target>                 vulnerability scripts
+6.  nmap -p 445 --script smb-vuln-ms17-010 <target> EternalBlue check
+7.  nmap -sU --top-ports 20 <target>                UDP top-20
+
+Key flags at a glance:
+  -sS  stealth SYN       -sT  TCP connect       -sU  UDP
+  -sV  version           -O   OS detect          -A   all of the above
+  -p-  all ports         -F   top 100            -Pn  skip ping
+  -T<0-5> timing         -n   no DNS             -oA  save all formats
+  --script=<name/category>                        run NSE scripts
