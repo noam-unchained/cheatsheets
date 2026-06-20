@@ -6,8 +6,7 @@ Covers the complete workflow from zero knowledge to full domain mapping.
 ## Files
 
 - `windows-enumeration.md` — full cheat sheet (plain text, readable in any editor)
-- `windows-enumeration.pdf` — styled PDF with orange theme (English)
-- `windows-enumeration-he.pdf` — same content in Hebrew
+- `windows-enumeration.pdf` — styled PDF with orange theme
 - `quickref.txt` — one-liner command card, all sections at a glance
 
 ## Structure

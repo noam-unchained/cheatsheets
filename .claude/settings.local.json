@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/noamgolian/Desktop/noam_unchained/cheatsheets -name \"Makefile\" -o -name \"*.sh\" -o -name \"generate*\" 2>/dev/null; ls /Users/noamgolian/Desktop/noam_unchained/)"
+    ]
+  }
+}
