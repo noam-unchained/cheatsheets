@@ -63,7 +63,7 @@ Grab domain name, OS, signing status, and DC hostnames in one shot:
 
     nxc smb <target-range>
 
-    Also accepts: cme smb / crackmapexec smb (older aliases, same syntax)
+    Also accepts: crackmapexec smb / cme smb (older aliases, same syntax)
 
     Key things to look for:
       Domain / Hostname   confirms domain name and DC candidates

