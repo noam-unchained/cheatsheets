@@ -8,3 +8,5 @@ Personal security / lab cheat sheets, one folder per topic.
 - [pass-the-hash](pass-the-hash/) — authenticate with a captured NT hash directly, no plaintext needed — SMB, WinRM, and network spray (diagram + step-by-step)
 - [windows-enumeration](windows-enumeration/) — full Windows / Active Directory enumeration workflow, organized by goal — unauthenticated recon through authenticated domain mapping
 - [ntlm-relay](ntlm-relay/) — relay captured NTLM auth in real time to a target without cracking — Responder + ntlmrelayx + SOCKS post-exploitation (secretsdump, lsassy, smbexec, token impersonation)
+- [mitm6](mitm6/) — IPv6-based MITM attack — exploit default-enabled IPv6 + WPAD to relay NTLM auth to LDAP and dump the entire domain (users, groups, computers, policies)
+- [windows-privesc](privilege_escalation/windows-privesc/) — local Windows privilege escalation (SeImpersonatePrivilege/Potato, service exploits, AlwaysInstallElevated, stored credentials) + AD escalation (ACL abuse, DCSync)

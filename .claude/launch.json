@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "mitm6-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "7788", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/mitm6"],
+      "port": 7788
+    },
+    {
+      "name": "linux-privesc-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "7789", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/privilege_escalation/linux-privesc"],
+      "port": 7789
+    },
+    {
+      "name": "linux-enum-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "7790", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/enumeration/linux-enumeration"],
+      "port": 7790
+    },
+    {
+      "name": "windows-privesc-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "7791", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/privilege_escalation/windows-privesc"],
+      "port": 7791
+    },
+    {
+      "name": "windows-local-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "7792", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/enumeration/windows-local"],
+      "port": 7792
+    }
+  ]
+}

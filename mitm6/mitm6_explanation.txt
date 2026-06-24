@@ -1,0 +1,30 @@
+mitm6 — IPv6-based MITM Attack
+================================
+
+The core problem it exploits:
+In most Windows networks, IPv6 is enabled by default but nobody actually uses it.
+Windows machines periodically broadcast DHCPv6 requests looking for an IPv6 gateway
+— even on pure IPv4 networks. Nobody answers these requests... until an attacker does.
+
+What mitm6 does:
+1. Listens for those DHCPv6 requests from Windows hosts on the local network.
+2. Responds and assigns itself as the IPv6 default gateway and — critically — as the
+   DNS server for the victim machine.
+3. Now the victim trusts the attacker's machine for DNS resolution over IPv6.
+4. When the victim tries to resolve any hostname (including internal ones), the
+   attacker's DNS server responds with the attacker's own IP, redirecting traffic.
+
+Why this is powerful — the combo attack:
+mitm6 is almost always paired with ntlmrelayx (from impacket). The flow looks like this:
+
+- Victim machine gets redirected to the attacker's IP for some internal resource
+  (e.g., a login page, SMB share, WPAD proxy).
+- The victim automatically tries to authenticate using NTLM (Windows does this
+  silently in the background).
+- ntlmrelayx captures that NTLM authentication and relays it to another machine on
+  the network — potentially creating admin accounts, dumping credentials, or gaining a shell.
+
+Key conditions for it to work:
+- IPv6 must be enabled on victim machines (it is by default on Windows).
+- NTLM authentication must be in use (very common in AD environments).
+- SMB signing should be disabled on the target (for relay to work).
