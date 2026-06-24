@@ -4,13 +4,13 @@
     {
       "name": "mitm6-preview",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "7788", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/mitm6"],
+      "runtimeArgs": ["-m", "http.server", "7788", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/attacks/mitm/mitm6"],
       "port": 7788
     },
     {
       "name": "linux-privesc-preview",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "7789", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/privilege_escalation/linux-privesc"],
+      "runtimeArgs": ["-m", "http.server", "7789", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/privilege-escalation/linux-privesc"],
       "port": 7789
     },
     {
@@ -22,7 +22,7 @@
     {
       "name": "windows-privesc-preview",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "7791", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/privilege_escalation/windows-privesc"],
+      "runtimeArgs": ["-m", "http.server", "7791", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/privilege-escalation/windows-privesc"],
       "port": 7791
     },
     {
@@ -30,6 +30,18 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "7792", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/enumeration/windows-local"],
       "port": 7792
+    },
+    {
+      "name": "ettercap-mitm-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "7793", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/attacks/mitm/ettercap-mitm"],
+      "port": 7793
+    },
+    {
+      "name": "ntlm-relay-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "7794", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/attacks/credential-attacks/ntlm-relay"],
+      "port": 7794
     }
   ]
 }
