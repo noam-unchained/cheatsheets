@@ -6,8 +6,11 @@ Requires: valid domain credentials, Docker running
     ./bloodhound-cli up
     UI: http://127.0.0.1:8080  (admin / password from install)
 
-2.  Collect data:
+2.  Collect data (requires domain creds — collector uses LDAP queries, LDAP needs auth):
     bloodhound-ce-python --zip -c All -d <domain> -u <user> -p '<pass>' -dc <dc-host> -ns <dc-ip>
+
+    Example:
+    bloodhound-ce-python --zip -c All -d force.local -u leia.o -p '#1Loved' -dc dc-01.force.local -ns 192.168.50.10
 
 3.  Ingest: Administration → File Ingest → Upload File(s) → select .zip
 

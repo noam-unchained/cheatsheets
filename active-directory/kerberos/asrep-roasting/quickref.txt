@@ -17,4 +17,4 @@ Crack (John):
 
 Use recovered password:
     evil-winrm -i <target-ip> -u <user> -p <password>
-    crackmapexec smb <target-ip> -u <user> -p <password>
+    nxc smb <target-ip> -u <user> -p <password>
