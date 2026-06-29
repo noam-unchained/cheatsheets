@@ -1,6 +1,8 @@
 # cheatsheets
 
-Security cheat sheets for my personal use, organized by attack phase. Feel free to use them too.
+Security cheat sheets for my personal use, organized by attack phase.
+Feel free to use them too.
+
 Each topic has a PDF and a Markdown file. The PDF leads with a one-page diagram of
 the attack flow, then the step-by-step commands — the Markdown is the plain-text source.
 
