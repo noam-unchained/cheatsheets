@@ -1,6 +1,8 @@
 # cheatsheets
 
-Personal security / lab cheat sheets, organized by attack phase.
+Security cheat sheets for my personal use, organized by attack phase. Feel free to use them too.
+Each topic has a PDF and a Markdown file. The PDF leads with a one-page diagram of
+the attack flow, then the step-by-step commands — the Markdown is the plain-text source.
 
 ## Initial Access
 - [aitm-phishing](initial-access/aitm-phishing/) — Adversary-in-the-Middle reverse-proxy phishing to steal MFA-backed session tokens (concept + workflow)
