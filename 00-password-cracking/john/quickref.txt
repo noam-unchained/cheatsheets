@@ -1,0 +1,33 @@
+JOHN THE RIPPER — QUICK REF
+
+Requires: a hash file (often produced by a *2john extractor)
+
+1.  Extract a hash (*2john):
+    zip2john secret.zip > zip.hash
+    rar2john secret.rar > rar.hash
+    pdf2john.pl doc.pdf > pdf.hash
+    ssh2john id_rsa > ssh.hash
+    keepass2john db.kdbx > kp.hash
+    office2john report.docx > office.hash
+    unshadow /etc/passwd /etc/shadow > linux.hash
+
+2.  Wordlist (auto-detect):
+    john --wordlist=/usr/share/wordlists/rockyou.txt <hashfile>
+    john --show <hashfile>
+    # force format:
+    john --format=krb5tgs --wordlist=rockyou.txt <hashfile>
+
+3.  Rules / incremental / mask:
+    john --wordlist=rockyou.txt --rules <hashfile>
+    john --incremental <hashfile>
+    john --mask='?u?l?l?l?l?d?d' <hashfile>
+
+4.  Manage:
+    john --status
+    john --restore
+    john --users=<user1,user2> <hashfile>
+    # cracked stored in ~/.john/john.pot
+
+5.  End-to-end:
+    ssh2john id_rsa > h && john --wordlist=rockyou.txt h      # then ssh -i id_rsa
+    keepass2john db.kdbx > h && john --wordlist=rockyou.txt h

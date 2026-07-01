@@ -1,0 +1,31 @@
+HASHCAT — QUICK REF
+
+Requires: a hash file + the correct mode (-m)
+
+1.  Identify hash → mode:
+    hashid '<hash>'
+    nth --text '<hash>'
+    # 0 MD5 · 100 SHA1 · 1000 NTLM · 1800 sha512crypt($6$) · 3200 bcrypt
+    # 5600 NetNTLMv2 · 13100 Kerberoast RC4($23$) · 19700 Kerberoast AES256($18$)
+    # 18200 AS-REP($23$) · 16500 JWT · 22000 WPA
+
+2.  Wordlist (-a 0):
+    hashcat -m <mode> <hashfile> /usr/share/wordlists/rockyou.txt
+    hashcat -m 1000 ntlm.hashes rockyou.txt --username
+
+3.  Wordlist + rules:
+    hashcat -m <mode> <hashfile> rockyou.txt -r /usr/share/hashcat/rules/best64.rule
+    hashcat -m <mode> <hashfile> rockyou.txt -r /usr/share/hashcat/rules/OneRuleToRuleThemAll.rule
+
+4.  Mask / brute (-a 3):   ?l ?u ?d ?s ?a
+    hashcat -m <mode> <hashfile> -a 3 '?u?l?l?l?l?l?d?d'
+    hashcat -m <mode> <hashfile> -a 3 ?a?a?a?a?a?a --increment
+
+5.  Hybrid (-a 6 word+mask / -a 7 mask+word):
+    hashcat -m <mode> <hashfile> -a 6 rockyou.txt '?d?d?d?d?s'
+
+6.  Results / control:
+    hashcat -m <mode> <hashfile> --show      # cracked user:pass
+    hashcat -m <mode> <hashfile> --left      # uncracked
+    hashcat ... --session myrun              # then: --session myrun --restore
+    # no GPU: add --force   |   feasibility: --keyspace

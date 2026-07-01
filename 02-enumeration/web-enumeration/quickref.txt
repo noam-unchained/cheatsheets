@@ -1,0 +1,28 @@
+WEB ENUMERATION — QUICK REF
+
+Requires: a reachable web target (http://<target>)
+
+1.  Fingerprint:
+    whatweb http://<target>
+    nikto -h http://<target>
+    curl -sI http://<target>
+    # also check: /robots.txt  /sitemap.xml  page source + JS
+
+2.  Directory / file brute force:
+    feroxbuster -u http://<target> -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,txt,html,bak -t 50
+    ffuf -u http://<target>/FUZZ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -e .php,.txt,.html -mc 200,301,302,403
+    gobuster dir -u http://<target> -w <wordlist> -x php,txt,html
+    # filter: -fc 404 / -fs <size> / -fw <words>
+
+3.  vhost discovery:
+    ffuf -u http://<target> -H "Host: FUZZ.<domain>" -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <default-size>
+
+4.  Subdomains:
+    subfinder -d <domain> -silent
+    ffuf -u http://FUZZ.<domain> -w <subdomain-wordlist> -mc 200,301,302
+    dig axfr <domain> @<ns-ip>
+
+5.  Parameters / endpoints:
+    ffuf -u "http://<target>/page?FUZZ=1" -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt -fs <size>
+    arjun -u http://<target>/page
+    gau <domain> ; waybackurls <domain> ; katana -u http://<target>

