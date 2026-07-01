@@ -60,6 +60,9 @@ Each topic has a **PDF** (one-page diagram + step-by-step commands) and a **Mark
 - [adcs-esc-attacks](03-active-directory/kerberos/adcs-esc-attacks/) — AD CS ESC1–ESC8 with certipy → certificate → PKINIT
 - [golden-silver-tickets](03-active-directory/kerberos/golden-silver-tickets/) — forge TGTs (golden) and TGSs (silver) — persistence/impersonation
 
+#### GPO Abuse
+- [gpo-abuse](03-active-directory/gpo-abuse/) — abuse writable GPOs (SharpGPOAbuse/pyGPOAbuse) to push scheduled tasks domain-wide + GPP password extraction
+
 #### Site Systems
 - [sccm-mecm-attacks](03-active-directory/sccm-mecm-attacks/) — SCCM/MECM: recover NAA creds + relay the site server (SCCMHunter) → SYSTEM on every client
 
@@ -77,11 +80,17 @@ Each topic has a **PDF** (one-page diagram + step-by-step commands) and a **Mark
 ### Evasion
 - [av-amsi-bypass](03-av-amsi-bypass/) — bypass AMSI (reflection/memory patch) + evade Defender on disk (in-memory cradles, ScareCrow, custom loaders, DLL side-loading)
 
+### C2 Frameworks
+- [sliver](03-c2-frameworks/sliver/) — Sliver C2: implant generation (session/beacon), listeners, execute-assembly, SOCKS5 pivoting, armory extensions
+
 ## 04 — Post-Exploitation
 - [privilege-escalation / linux](04-privilege-escalation/linux-privesc/) — Linux local privilege escalation
 - [privilege-escalation / windows](04-privilege-escalation/windows-privesc/) — local Windows privesc (SeImpersonate/Potato, service exploits, AlwaysInstallElevated, stored creds) + AD escalation (ACL abuse, DCSync)
 - [credential-hunting](04-post-exploitation/credential-hunting/) — mine stored creds (Windows DPAPI/browser/Cred Manager, Linux history/keys/configs) → reuse to escalate + pivot
+- [persistence-windows](04-post-exploitation/persistence-windows/) — survive reboots: registry run keys, scheduled tasks, services, WMI subscriptions, DLL hijacking
+- [persistence-linux](04-post-exploitation/persistence-linux/) — survive reboots: cron, systemd, SSH keys, SUID backdoor, shell profiles, rc.local
 
 ## 00 — Cross-Cutting
 - [hashcat](00-password-cracking/hashcat/) — offline hash cracking: mode selection, wordlist + rules, masks, hybrid, run control
 - [john](00-password-cracking/john/) — John the Ripper: *2john file extractors (zip/PDF/SSH/KeePass/shadow), auto-detect, rules/incremental/mask
+- [file-transfers](00-file-transfers/) — get tools on target + loot off it: certutil, PowerShell, wget/curl, SMB, scp, nc, /dev/tcp, base64

