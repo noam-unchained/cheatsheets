@@ -11,8 +11,8 @@ and continue down the chain.
 
 Before touching the network:
 
-  □ Set up your C2               → [Sliver](../../../03-c2-frameworks/sliver/sliver.md)
-  □ Prep file-transfer methods   → [File Transfers](../../../00-file-transfers/file-transfers.md)
+  □ Set up your C2               → [Sliver](../../../09-c2-frameworks/sliver/sliver.md)
+  □ Prep file-transfer methods   → [File Transfers](../../../00-general/file-transfers/file-transfers.md)
   □ Start your notes — log every cred, host, and path
 
 
@@ -25,12 +25,12 @@ Before touching the network:
   ├─ YES → skip to Phase 2
   │
   └─ NO  → get in:
-           ├─ Phishing?    → [AitM Phishing](../../../03-initial-access/aitm-phishing/aitm-phishing.md)
-           │                  [Evilginx](../../../03-initial-access/evilginx/evilginx.md)
-           ├─ Web app?     → [SQLi](../../../03-web-app/sqli/sqli.md)
-           │                  [Command Injection](../../../03-web-app/command-injection/command-injection.md)
-           │                  [File Upload](../../../03-web-app/file-upload-bypass/file-upload-bypass.md)
-           │                  [LFI/RFI](../../../03-web-app/lfi-rfi/lfi-rfi.md)
+           ├─ Phishing?    → [AitM Phishing](../../../02-initial-access/aitm-phishing/aitm-phishing.md)
+           │                  [Evilginx](../../../02-initial-access/evilginx/evilginx.md)
+           ├─ Web app?     → [SQLi](../../../02-initial-access/web-app/sqli/sqli.md)
+           │                  [Command Injection](../../../02-initial-access/web-app/command-injection/command-injection.md)
+           │                  [File Upload](../../../02-initial-access/web-app/file-upload-bypass/file-upload-bypass.md)
+           │                  [LFI/RFI](../../../02-initial-access/web-app/lfi-rfi/lfi-rfi.md)
            └─ Exposed svc? → exploit it, get a shell
 
   Got a shell or callback? → Phase 2.
@@ -41,7 +41,7 @@ Before touching the network:
 ========================================================================
 
   Run on every new host you land on.
-  Full local enum commands → [Windows Local Enum](../../../02-enumeration/windows-local/windows-local.md)
+  Full local enum commands → [Windows Local Enum](../../../01-recon-enumeration/windows-local/windows-local.md)
 
   Q1: Am I local admin?
   │   whoami /priv, whoami /groups
@@ -53,14 +53,14 @@ Before touching the network:
   │   tasklist → MsMpEng.exe, Sysmon, CrowdStrike…
   │
   ├─ YES → bypass AMSI before any PowerShell tooling
-  │        → [AV / AMSI Bypass](../../../03-av-amsi-bypass/av-amsi-bypass.md)
+  │        → [AV / AMSI Bypass](../../../08-evasion/av-amsi-bypass/av-amsi-bypass.md)
   └─ NO  → proceed freely
 
   Q3: Can I reach the DC and other subnets?
   │
   ├─ YES → continue
   └─ NO  → set up a tunnel
-           → [Pivoting & Tunneling](../../../03-network/pivoting-tunneling/pivoting-tunneling.md)
+           → [Pivoting & Tunneling](../../../06-network/pivoting-tunneling/pivoting-tunneling.md)
 
 
 ========================================================================
@@ -68,7 +68,7 @@ Before touching the network:
 ========================================================================
 
   Only if you are NOT local admin. Pick your path:
-  Full commands → [Windows Privesc](../../../04-privilege-escalation/windows-privesc/windows-privesc.md)
+  Full commands → [Windows Privesc](../../../03-post-exploitation/windows-privesc/windows-privesc.md)
 
   Have SeImpersonatePrivilege?
   ├─ YES → Potato attacks (GodPotato, PrintSpoofer)
@@ -93,7 +93,7 @@ Before touching the network:
 ========================================================================
 
   *** Is Defender / AMSI active? ***
-  ├─ YES → bypass first → [AV / AMSI Bypass](../../../03-av-amsi-bypass/av-amsi-bypass.md)
+  ├─ YES → bypass first → [AV / AMSI Bypass](../../../08-evasion/av-amsi-bypass/av-amsi-bypass.md)
   └─ NO  → proceed
 
   Dump LSASS (hashes, tickets, plaintext):
@@ -103,11 +103,11 @@ Before touching the network:
     → secretsdump / reg save
 
   Hunt for saved creds, DPAPI, browser passwords, vaults:
-    → [Credential Hunting](../../../04-post-exploitation/credential-hunting/credential-hunting.md)
+    → [Credential Hunting](../../../03-post-exploitation/credential-hunting/credential-hunting.md)
 
   Cached domain creds (DCC2)? Crack them offline:
-    → [Hashcat](../../../00-password-cracking/hashcat/hashcat.md)
-    → [John](../../../00-password-cracking/john/john.md)
+    → [Hashcat](../../../00-general/password-cracking/hashcat/hashcat.md)
+    → [John](../../../00-general/password-cracking/john/john.md)
 
   What did you get?
   │
@@ -140,7 +140,7 @@ Before touching the network:
   ├─ Hosts with logged-in privileged users (check BloodHound)
   │
   Need to reach another subnet?
-    → [Pivoting & Tunneling](../../../03-network/pivoting-tunneling/pivoting-tunneling.md)
+    → [Pivoting & Tunneling](../../../06-network/pivoting-tunneling/pivoting-tunneling.md)
 
   ┌────────────────────────────────────────────┐
   │  Every new host → go back to Phase 2.      │
@@ -153,7 +153,7 @@ Before touching the network:
 ========================================================================
 
   *** Is AMSI active? SharpHound and PowerView will get caught. ***
-  ├─ YES → bypass first → [AV / AMSI Bypass](../../../03-av-amsi-bypass/av-amsi-bypass.md)
+  ├─ YES → bypass first → [AV / AMSI Bypass](../../../08-evasion/av-amsi-bypass/av-amsi-bypass.md)
   └─ NO  → proceed
 
   Map the domain:
@@ -232,12 +232,12 @@ Before touching the network:
     → [Golden / Silver Tickets](../../kerberos/golden-silver-tickets/golden-silver-tickets.md)
 
   Set up persistence:
-    → [Windows Persistence](../../../04-post-exploitation/persistence-windows/persistence-windows.md)
+    → [Windows Persistence](../../../03-post-exploitation/persistence-windows/persistence-windows.md)
 
   Domain is hybrid / cloud-connected?
     → pivot to cloud:
-      [Azure Enumeration](../../../03-cloud/azure-enumeration/azure-enumeration.md)
-      [Entra ID Attacks](../../../03-cloud/entra-id-attacks/entra-id-attacks.md)
+      [Azure Enumeration](../../../07-cloud/azure-enumeration/azure-enumeration.md)
+      [Entra ID Attacks](../../../07-cloud/entra-id-attacks/entra-id-attacks.md)
 
 
 ========================================================================
@@ -257,4 +257,4 @@ Before touching the network:
     • LOLBins (certutil, rundll32, etc.)
     • Anything running from your Linux box
 
-  → [AV / AMSI Bypass](../../../03-av-amsi-bypass/av-amsi-bypass.md)
+  → [AV / AMSI Bypass](../../../08-evasion/av-amsi-bypass/av-amsi-bypass.md)
