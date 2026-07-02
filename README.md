@@ -57,11 +57,12 @@ Each topic has a **PDF** (one-page diagram + step-by-step commands) and a **Mark
 - [password-spraying](04-active-directory/credential-abuse/password-spraying/) — one password vs many users, on-prem (nxc/kerbrute) + cloud (M365/Entra)
 - [pass-the-ticket](04-active-directory/credential-abuse/pass-the-ticket/) — overpass-the-hash + pass-the-ticket (Rubeus/impacket)
 
-### Relay Attacks
+### Relay & MITM Attacks
 - [llmnr-poisoning-responder](04-active-directory/relay-attacks/llmnr-poisoning-responder/) — LLMNR/NBT-NS poisoning with Responder to capture NTLMv2 hashes
 - [ntlm-relay](04-active-directory/relay-attacks/ntlm-relay/) — relay NTLM auth in real time — Responder + ntlmrelayx + SOCKS
 - [smb-relay](04-active-directory/relay-attacks/smb-relay/) — SMB relay attack
 - [mitm6](04-active-directory/relay-attacks/mitm6/) — IPv6-based MITM — exploit default-enabled IPv6 + WPAD to relay NTLM to LDAP
+- [ettercap-mitm](04-active-directory/relay-attacks/ettercap-mitm/) — Ettercap ARP-poisoning MITM
 - [authentication-coercion](04-active-directory/relay-attacks/authentication-coercion/) — force machine auth (PetitPotam/PrinterBug/DFSCoerce/Coercer) — trigger for relay + ADCS ESC8
 - [adcs-relay](04-active-directory/relay-attacks/adcs-relay/) — ESC8: coerce a DC → relay to AD CS HTTP enrollment → cert → PKINIT → DCSync
 
@@ -88,7 +89,6 @@ Each topic has a **PDF** (one-page diagram + step-by-step commands) and a **Mark
 
 ## 06 — Network
 - [pivoting-tunneling](06-network/pivoting-tunneling/) — pivot through a foothold into internal subnets (ligolo-ng / chisel / SSH / proxychains)
-- [ettercap-mitm](06-network/ettercap-mitm/) — Ettercap ARP-poisoning MITM
 
 ## 07 — Cloud
 - [azure-enumeration](07-cloud/azure-enumeration/) — directory + resource enumeration (ROADrecon, AzureHound, az CLI, IMDS)
