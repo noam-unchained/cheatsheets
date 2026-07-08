@@ -66,6 +66,13 @@ Option B - hashcat (GPU, much faster). Convert the .cap first:
     hashcat -m 22000 hash.22000 /usr/share/wordlists/rockyou.txt
     # older path: cap2hccapx capture-01.cap out.hccapx  ->  hashcat -m 2500
 
+Option C - John the Ripper (CPU). Convert the .cap to a john hash first:
+
+    aircrack-ng capture-01.cap -j out            # -> out.hccap
+    hccap2john out.hccap > wpa.john              # john's hccap->hash converter
+    john --wordlist=/usr/share/wordlists/rockyou.txt wpa.john
+    john --show wpa.john                          # display the cracked passphrase
+
 A crack prints "KEY FOUND! [ <passphrase> ]".
 
 
