@@ -53,6 +53,7 @@ Each topic has a **PDF** (one-page diagram + step-by-step commands) and a **Mark
 ### Credential Attacks
 - [pass-the-hash](04-active-directory/credential-abuse/pass-the-hash/) — authenticate with a captured NT hash — SMB, WinRM, network spray
 - [lsass-dumping](04-active-directory/credential-abuse/lsass-dumping/) — dump LSASS / local secrets (nxc, secretsdump, comsvcs, mimikatz, pypykatz)
+- [mimikatz](04-active-directory/credential-abuse/mimikatz/) — LSASS creds, SAM/LSA secrets, DCSync, pass-the-hash/ticket, golden/silver ticket, skeleton key
 - [shadow-credentials](04-active-directory/credential-abuse/shadow-credentials/) — abuse msDS-KeyCredentialLink via certipy/pywhisker → PKINIT → NT hash
 - [password-spraying](04-active-directory/credential-abuse/password-spraying/) — one password vs many users, on-prem (nxc/kerbrute) + cloud (M365/Entra)
 - [pass-the-ticket](04-active-directory/credential-abuse/pass-the-ticket/) — overpass-the-hash + pass-the-ticket (Rubeus/impacket)
