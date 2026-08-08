@@ -25,6 +25,7 @@ Each topic has a **PDF** (one-page diagram + step-by-step commands) and a **Mark
 
 ### Web Application
 - [sqli](02-initial-access/web-app/sqli/) — SQL injection: auth bypass, UNION + blind extraction, sqlmap
+- [sqli-syntax](02-initial-access/web-app/sqli-syntax/) — per-DBMS SQLi syntax reference (Oracle/MSSQL/PostgreSQL/MySQL): concat, version, conditional errors, time delays, OOB DNS
 - [xss](02-initial-access/web-app/xss/) — Cross-Site Scripting: reflected/stored/DOM, context payloads, WAF bypasses, session theft
 - [command-injection](02-initial-access/web-app/command-injection/) — OS shell command injection → RCE + reverse shell (in-band, blind, filter bypasses)
 - [lfi-rfi](02-initial-access/web-app/lfi-rfi/) — file inclusion: path traversal, PHP wrappers, log/session poisoning → RCE
