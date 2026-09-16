@@ -42,6 +42,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "7794", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets/attacks/credential-attacks/ntlm-relay"],
       "port": 7794
+    },
+    {
+      "name": "soc-prep",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8791", "--directory", "/Users/noamgolian/Desktop/noam_unchained/cheatsheets"],
+      "port": 8791
     }
   ]
 }

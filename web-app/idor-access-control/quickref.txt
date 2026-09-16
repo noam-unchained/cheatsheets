@@ -1,0 +1,8 @@
+IDOR / ACCESS CONTROL — QUICK REF
+
+Horizontal (other users):  GET /api/user/123 → 122/124/9999 ; ?id= ?account= ?doc=
+Vertical (privilege):      hit /admin, /api/admin/* directly ; replay admin req w/ low-priv session
+Param/method:              role=user→admin ; GET→DELETE ; X-User-Id / X-Original-URL: /admin
+Mass assignment:           add "isAdmin":true / "role":"admin" to the body
+ID tricks: sequential | base64/hex decode | array wrap id[]=123&id[]=124 | reuse leaked hash
+Confirm with a SECOND account.  Tool: Burp Autorize.

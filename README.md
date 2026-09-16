@@ -23,19 +23,39 @@ Each topic has a **PDF** (one-page diagram + step-by-step commands) and a **Mark
 - [aitm-phishing](02-initial-access/aitm-phishing/) — Adversary-in-the-Middle reverse-proxy phishing to steal MFA-backed session tokens
 - [evilginx](02-initial-access/evilginx/) — Evilginx 2: phishlets, lures, session capture, cookie replay
 
-### Web Application
-- [sqli](02-initial-access/web-app/sqli/) — SQL injection: auth bypass, UNION + blind extraction, sqlmap
-- [sqli-syntax](02-initial-access/web-app/sqli-syntax/) — per-DBMS SQLi syntax reference (Oracle/MSSQL/PostgreSQL/MySQL): concat, version, conditional errors, time delays, OOB DNS
-- [xss](02-initial-access/web-app/xss/) — Cross-Site Scripting: reflected/stored/DOM, context payloads, WAF bypasses, session theft
-- [command-injection](02-initial-access/web-app/command-injection/) — OS shell command injection → RCE + reverse shell (in-band, blind, filter bypasses)
-- [lfi-rfi](02-initial-access/web-app/lfi-rfi/) — file inclusion: path traversal, PHP wrappers, log/session poisoning → RCE
-- [file-upload-bypass](02-initial-access/web-app/file-upload-bypass/) — defeat extension/content-type/magic-byte filters to plant a webshell
-- [ssrf](02-initial-access/web-app/ssrf/) — Server-Side Request Forgery: internal reach, cloud metadata (IMDS), gopher/file schemes, filter bypasses
-- [burp-suite](02-initial-access/web-app/burp-suite/) — Burp Suite, split per tool:
-  - [burp-overview](02-initial-access/web-app/burp-suite/burp-overview/) — proxy / CA / scope setup and the Send-to-tool workflow
-  - [burp-repeater](02-initial-access/web-app/burp-suite/burp-repeater/) — manual request tampering (auth bypass, IDOR, injection probes)
-  - [burp-intruder](02-initial-access/web-app/burp-suite/burp-intruder/) — automated fuzzing + the 4 attack types
-  - [burp-extensions](02-initial-access/web-app/burp-suite/burp-extensions/) — key BApp Store extensions (Autorize, Param Miner, JWT Editor, Logger++, Turbo Intruder)
+## Web Application
+> Standalone web-app attack reference — not phase-numbered; used across engagements.
+> **Start here:** [methodology](web-app/methodology/) — the map that ties every sheet below together (map the app → follow each input to its sink → attack → escalate; decision table + OWASP Top 10 map).
+
+### Injection
+- [sqli](web-app/sqli/) — SQL injection: auth bypass, UNION + blind extraction, files/RCE, sqlmap
+- [sqli-syntax](web-app/sqli-syntax/) — per-DBMS SQLi syntax reference (Oracle/MSSQL/PostgreSQL/MySQL): concat, version, conditional errors, time delays, OOB DNS
+- [nosql-injection](web-app/nosql-injection/) — MongoDB operator/`$where` injection: auth bypass (`$ne`/`$gt`), `$regex` extraction, blind
+- [command-injection](web-app/command-injection/) — OS shell command injection → RCE + reverse shell (in-band, blind, filter bypasses)
+- [ssti](web-app/ssti/) — server-side template injection: `{{7*7}}` detect, engine fingerprint, engine-specific RCE (Jinja2/Twig/Freemarker/ERB)
+- [xxe](web-app/xxe/) — XML external entities: file read, SSRF/cloud metadata, blind OOB exfil via external DTD
+
+### Client-side
+- [xss](web-app/xss/) — Cross-Site Scripting: reflected/stored/DOM, context payloads, WAF bypasses, session theft, payload arsenal
+- [csrf](web-app/csrf/) — Cross-Site Request Forgery: forge state-changing requests as the victim; token/SameSite/Origin bypasses
+
+### Access control
+- [idor-access-control](web-app/idor-access-control/) — broken access control: horizontal IDOR, vertical privesc, forced browsing, parameter/method tampering, mass assignment
+- [jwt-attacks](web-app/jwt-attacks/) — forge JSON Web Tokens: `alg:none`, weak-secret crack, RS256→HS256 confusion, `kid`/`jku`/`jwk` injection
+
+### File / path
+- [lfi-rfi](web-app/lfi-rfi/) — file inclusion: path traversal, PHP wrappers, log/session poisoning → RCE
+- [file-upload-bypass](web-app/file-upload-bypass/) — defeat extension/content-type/magic-byte filters to plant a webshell
+
+### Server-side request
+- [ssrf](web-app/ssrf/) — Server-Side Request Forgery: internal reach, cloud metadata (IMDS), gopher/file schemes, filter bypasses
+
+### Tooling
+- [burp-suite](web-app/burp-suite/) — Burp Suite, split per tool:
+  - [burp-overview](web-app/burp-suite/burp-overview/) — proxy / CA / scope setup and the Send-to-tool workflow
+  - [burp-repeater](web-app/burp-suite/burp-repeater/) — manual request tampering (auth bypass, IDOR, injection probes)
+  - [burp-intruder](web-app/burp-suite/burp-intruder/) — automated fuzzing + the 4 attack types
+  - [burp-extensions](web-app/burp-suite/burp-extensions/) — key BApp Store extensions (Autorize, Param Miner, JWT Editor, Logger++, Turbo Intruder)
 
 ## 03 — Post-Exploitation
 - [windows-privesc](03-post-exploitation/windows-privesc/) — local Windows privesc (SeImpersonate/Potato, service exploits, AlwaysInstallElevated, stored creds) + AD escalation (ACL abuse, DCSync)

